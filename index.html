@@ -164,7 +164,7 @@
 <div class="container">
 
     <div class="card" id="inputSection">
-        <h3>Batch Cost Entry</h3>
+        <h3>Roll Covering Compound Cost Entry</h3>
         
         <div class="input-grid">
             <div class="form-group">
@@ -229,7 +229,7 @@
     </div>
 
     <div class="card">
-        <button class="btn-print" onclick="window.print()">ðŸ–¨ Print Report</button>
+        <button class="btn-print" onclick="window.print()">&#128424; Print Report</button>
 
         <div class="print-only">
             <div class="company-title">HINDUSTAN RUBBER PRODUCTS</div>
@@ -326,7 +326,7 @@
         const isUpdate = entries.some(e => e.sl === sl);
 
         if (!isUpdate && entries.length >= maxQty) {
-            alert(`â›” Limit Reached!\n\nTotal Qty is set to ${maxQty}.\nYou have already added ${entries.length} entries.\n\nPlease delete an entry before adding a new one.`);
+            alert(`⛔ Limit Reached!\n\nTotal Qty is set to ${maxQty}.\nYou have already added ${entries.length} entries.\n\nPlease delete an entry before adding a new one.`);
             return;
         }
 
@@ -440,7 +440,7 @@
     function updateNote() {
         const b = document.getElementById('baseRate').value || 0;
         const t = document.getElementById('topRate').value || 0;
-        document.getElementById('printRateNote').innerText = `* Note: Base Rate @ &#8377; ${b}/Kg | Top Rate @ &#8377; ${t}/Kg`;
+        document.getElementById('printRateNote').innerText = `* Note: Base Rate @ ₹ ${b}/Kg | Top Rate @ ₹ ${t}/Kg`;
     }
 
     document.querySelectorAll('input').forEach(i => i.addEventListener('input', updateHeader));
