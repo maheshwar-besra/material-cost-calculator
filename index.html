@@ -169,11 +169,11 @@
         <div class="input-grid">
             <div class="form-group">
                 <label>Roll Name</label>
-                <input type="text" id="rollName" placeholder="e.g. NBR Jumbo">
+                <input type="text" id="rollName" placeholder="e.g. TSL ECL Roll">
             </div>
             <div class="form-group">
                 <label>G.P. No.</label>
-                <input type="text" id="gpNo" placeholder="101">
+                <input type="text" id="gpNo" placeholder="TSL-2026-1234">
             </div>
 
             <div class="form-group">
@@ -200,7 +200,7 @@
             </div>
             <div class="form-group">
                 <label>Roll ID</label>
-                <input type="text" id="rollId" placeholder="ID-001">
+                <input type="text" id="rollId" placeholder="S-1">
             </div>
 
             <div class="form-group">
@@ -208,7 +208,7 @@
                 <input type="number" step="0.01" id="baseWt" placeholder="0.00">
             </div>
             <div class="form-group">
-                <label>Base Rate ()</label>
+                <label>Base Rate (â‚¹)</label>
                 <input type="number" step="0.01" id="baseRate" placeholder="0.00" oninput="updateNote()">
             </div>
 
@@ -217,7 +217,7 @@
                 <input type="number" step="0.01" id="topWt" placeholder="0.00">
             </div>
             <div class="form-group">
-                <label>Top Rate ()</label>
+                <label>Top Rate (â‚¹)</label>
                 <input type="number" step="0.01" id="topRate" placeholder="0.00" oninput="updateNote()">
             </div>
         </div>
@@ -229,7 +229,7 @@
     </div>
 
     <div class="card">
-        <button class="btn-print" onclick="window.print()"> Print Report Only</button>
+        <button class="btn-print" onclick="window.print()">ðŸ–¨ Print Report</button>
 
         <div class="print-only">
             <div class="company-title">HINDUSTAN RUBBER PRODUCTS</div>
@@ -260,15 +260,15 @@
                         <th style="width:60px">Sl. No.</th>
                         <th>Roll ID</th>
                         <th>Material Wt (Kg)</th>
-                        <th>Amount ()</th>
-                        <th>Total Amount ()</th>
+                        <th>Amount (â‚¹)</th>
+                        <th>Total Amount (â‚¹)</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
                 <tfoot>
                     <tr>
                         <td colspan="4" style="text-align:right; font-weight:bold;">Grand Total:</td>
-                        <td class="total-cell"> <span id="grandTotal">0.00</span></td>
+                        <td class="total-cell">â‚¹ <span id="grandTotal">0.00</span></td>
                     </tr>
                 </tfoot>
             </table>
@@ -326,7 +326,7 @@
         const isUpdate = entries.some(e => e.sl === sl);
 
         if (!isUpdate && entries.length >= maxQty) {
-            alert(` Limit Reached!\n\nTotal Qty is set to ${maxQty}.\nYou have already added ${entries.length} entries.\n\nPlease delete an entry before adding a new one.`);
+            alert(`â›” Limit Reached!\n\nTotal Qty is set to ${maxQty}.\nYou have already added ${entries.length} entries.\n\nPlease delete an entry before adding a new one.`);
             return;
         }
 
@@ -400,7 +400,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="total-cell"> ${Math.round(e.total)}</td>
+                <td class="total-cell">â‚¹ ${Math.round(e.total)}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -440,7 +440,7 @@
     function updateNote() {
         const b = document.getElementById('baseRate').value || 0;
         const t = document.getElementById('topRate').value || 0;
-        document.getElementById('printRateNote').innerText = `* Note: Base Rate @  ${b}/Kg | Top Rate @  ${t}/Kg`;
+        document.getElementById('printRateNote').innerText = `* Note: Base Rate @ â‚¹ ${b}/Kg | Top Rate @ â‚¹ ${t}/Kg`;
     }
 
     document.querySelectorAll('input').forEach(i => i.addEventListener('input', updateHeader));
