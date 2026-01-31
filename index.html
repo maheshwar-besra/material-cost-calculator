@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Material Cost Calculator</title>
+    <title>Roll Relining Material Cost Calculator</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
@@ -37,12 +37,17 @@
             font-size: 1.1rem; font-weight: 700;
         }
 
-        /* --- ULTRA COMPACT INPUTS --- */
+        /* --- INPUT GRID --- */
         .input-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
             gap: 10px; 
             margin-bottom: 15px; 
+        }
+
+        /* Full Width for Roll Name */
+        .full-width {
+            grid-column: 1 / -1;
         }
         
         .form-group { display: flex; flex-direction: column; }
@@ -129,17 +134,17 @@
 
             /* TABLE */
             .table-wrap { border: none; margin-top: 5px; }
-            table { border: 2px solid #000; width: 100%; font-size: 16px; }
-            th, td { border: 1px solid #000; padding: 8px 12px; color: #000; }
+            table { border: 2px solid #000; width: 100%; font-size: 14px; } /* Slightly smaller for extra column */
+            th, td { border: 1px solid #000; padding: 8px 8px; color: #000; }
             thead { background: #eee !important; }
-            th { font-weight: 900; font-size: 15px; text-transform: uppercase; }
+            th { font-weight: 900; font-size: 14px; text-transform: uppercase; }
             
             .sl-cell { text-decoration: none !important; color: #000 !important; font-weight: 900 !important; cursor: default; }
 
             /* CENTER ALIGNMENT FIX */
             .val-stack { 
                 margin: 0 auto; width: fit-content; 
-                font-size: 15px; gap: 4px; 
+                font-size: 14px; gap: 4px; 
             }
             .val-row { 
                 display: flex; justify-content: flex-start; gap: 5px; 
@@ -148,7 +153,7 @@
                 color: #000; font-weight: bold; width: 40px; text-align: left;
             }
             .val-num { font-weight: 900; color: #000; }
-            .total-cell { color: #000; font-size: 18px; font-weight: 900; }
+            .total-cell { color: #000; font-size: 16px; font-weight: 900; }
             
             .print-total-line { 
                 display: flex; justify-content: flex-start; gap: 5px;
@@ -164,16 +169,21 @@
 <div class="container">
 
     <div class="card" id="inputSection">
-        <h3>Roll Covering Compound Cost Entry</h3>
+        <h3>Roll Relining Compound Cost Entry</h3>
         
         <div class="input-grid">
-            <div class="form-group">
+            <div class="form-group full-width">
                 <label>Roll Name</label>
                 <input type="text" id="rollName" placeholder="e.g. TSL ECL Roll">
             </div>
+
             <div class="form-group">
                 <label>G.P. No.</label>
-                <input type="text" id="gpNo" placeholder="TSL-2026-1234">
+                <input type="text" id="gpNo" placeholder="101">
+            </div>
+            <div class="form-group">
+                <label>Total Qty</label>
+                <input type="number" id="totalQty" placeholder="e.g. 2">
             </div>
 
             <div class="form-group">
@@ -186,21 +196,21 @@
             </div>
 
             <div class="form-group">
-                <label>Total Qty</label>
-                <input type="number" id="totalQty" placeholder="e.g. 2">
-            </div>
-            <div class="form-group">
-                <label>Polymer</label>
-                <input type="text" id="polymer" placeholder="e.g. NBR">
-            </div>
-
-            <div class="form-group">
                 <label>Sl. No.</label>
                 <input type="number" id="slNo" value="1">
             </div>
             <div class="form-group">
                 <label>Roll ID</label>
-                <input type="text" id="rollId" placeholder="S-1">
+                <input type="text" id="rollId" placeholder="ID-001">
+            </div>
+
+            <div class="form-group">
+                <label>Shell Dia</label>
+                <input type="text" id="shellDia" placeholder="e.g. 500">
+            </div>
+            <div class="form-group">
+                <label>Polymer</label>
+                <input type="text" id="polymer" placeholder="e.g. NBR">
             </div>
 
             <div class="form-group">
@@ -229,11 +239,11 @@
     </div>
 
     <div class="card">
-        <button class="btn-print" onclick="window.print()">&#128424; Print Report</button>
+        <button class="btn-print" onclick="window.print()">&#128424; Print Report Only</button>
 
         <div class="print-only">
             <div class="company-title">HINDUSTAN RUBBER PRODUCTS</div>
-            <div class="sub-title">ROLL COVERING MATERIAL COST</div>
+            <div class="sub-title">ROLL RELINING MATERIAL COST REPORT</div>
             
             <div class="print-header-container">
                 <div class="ph-col">
@@ -257,8 +267,9 @@
             <table id="dataTable">
                 <thead>
                     <tr>
-                        <th style="width:60px">Sl. No.</th>
+                        <th style="width:50px">Sl. No.</th>
                         <th>Roll ID</th>
+                        <th>Shell Dia</th>
                         <th>Material Wt (Kg)</th>
                         <th>Amount (&#8377;)</th>
                         <th>Total Amount (&#8377;)</th>
@@ -267,7 +278,7 @@
                 <tbody id="tableBody"></tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4" style="text-align:right; font-weight:bold;">Grand Total:</td>
+                        <td colspan="5" style="text-align:right; font-weight:bold;">Grand Total:</td>
                         <td class="total-cell">&#8377; <span id="grandTotal">0.00</span></td>
                     </tr>
                 </tfoot>
@@ -304,6 +315,7 @@
         
         const sl = parseInt(document.getElementById('slNo').value) || 0;
         const rollId = document.getElementById('rollId').value || "";
+        const shellDia = document.getElementById('shellDia').value || "";
         const bWt = parseFloat(document.getElementById('baseWt').value) || 0;
         const bRate = parseFloat(document.getElementById('baseRate').value) || 0;
         const tWt = parseFloat(document.getElementById('topWt').value) || 0;
@@ -315,13 +327,13 @@
             return;
         }
 
-        // 2. Check Row Info
-        if (!rollId || bWt <= 0 || bRate <= 0 || tWt <= 0 || tRate <= 0) {
-            alert("Please fill all Entry details (Roll ID, Weights, Rates)!\nWeights & Rates must be greater than 0.");
+        // 2. Check Row Info (Added Shell Dia Check)
+        if (!rollId || !shellDia || bWt <= 0 || bRate <= 0 || tWt <= 0 || tRate <= 0) {
+            alert("Please fill all Entry details (Roll ID, Shell Dia, Weights, Rates)!\nWeights & Rates must be greater than 0.");
             return;
         }
 
-        // 3. CHECK QUANTITY LIMIT (NEW)
+        // 3. CHECK QUANTITY LIMIT
         const maxQty = parseInt(totalQtyInput);
         const isUpdate = entries.some(e => e.sl === sl);
 
@@ -336,16 +348,18 @@
         const total = bAmt + tAmt;
         const totalWt = (bWt + tWt).toFixed(2);
 
+        const newEntry = { sl, rollId, shellDia, bWt, bRate, tWt, tRate, bAmt, tAmt, total, totalWt };
+
         // Check for duplicate SL
         const existingIndex = entries.findIndex(e => e.sl === sl);
         if(existingIndex > -1) {
             if(confirm(`Sl No ${sl} already exists. Overwrite?`)) {
-                entries[existingIndex] = { sl, rollId, bWt, bRate, tWt, tRate, bAmt, tAmt, total, totalWt };
+                entries[existingIndex] = newEntry;
             } else {
                 return;
             }
         } else {
-            entries.push({ sl, rollId, bWt, bRate, tWt, tRate, bAmt, tAmt, total, totalWt });
+            entries.push(newEntry);
         }
         
         // Auto increment & Clear
@@ -353,6 +367,7 @@
         document.getElementById('baseWt').value = "";
         document.getElementById('topWt').value = "";
         document.getElementById('rollId').value = "";
+        document.getElementById('shellDia').value = ""; // Clear Shell Dia
 
         renderTable();
         updateHeader();
@@ -372,6 +387,7 @@
             tr.innerHTML = `
                 <td onclick="deleteRow(${index})" class="sl-cell">${e.sl}</td>
                 <td style="font-weight:bold">${e.rollId}</td>
+                <td style="font-weight:bold">${e.shellDia}</td>
                 <td>
                     <div class="val-stack">
                         <div class="val-row">
@@ -440,7 +456,7 @@
     function updateNote() {
         const b = document.getElementById('baseRate').value || 0;
         const t = document.getElementById('topRate').value || 0;
-        document.getElementById('printRateNote').innerText = `* Note: Base Rate @ ₹ ${b}/Kg | Top Rate @ ₹ ${t}/Kg`;
+        document.getElementById('printRateNote').innerText = `* Note: Current Base Rate @ ₹ ${b}/Kg | Top Rate @ ₹ ${t}/Kg`;
     }
 
     document.querySelectorAll('input').forEach(i => i.addEventListener('input', updateHeader));
