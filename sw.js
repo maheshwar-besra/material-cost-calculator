@@ -1,4 +1,4 @@
-const CACHE_NAME = 'material-cost-v20260131-3';
+const CACHE_NAME = 'material-cost-v20260131-6';
 const ASSETS = [
   '/',
   '/index.html',
