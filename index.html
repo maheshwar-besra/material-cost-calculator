@@ -96,7 +96,7 @@
         /* DATA VISUALS (Screen) */
         .val-stack { display: flex; flex-direction: column; gap: 2px; font-size: 12px; text-align: left; padding-left: 5px; }
         .val-row { display: flex; align-items: center; gap: 8px; }
-        .val-label { font-weight: bold; color: #666; font-size: 11px; width: 35px; } 
+        .val-label { font-weight: bold; color: #666; font-size: 12px; width: 35px; } 
         .val-num { font-weight: bold; color: #000; }
         .total-cell { font-weight: bold; color: var(--primary); font-size: 14px; }
 
@@ -160,7 +160,7 @@
                 border-top: 1px solid #000; margin-top: 4px; padding-top: 4px; 
             }
             
-            .rate-note { font-weight: bold; font-size: 12px; margin-bottom: 5px; display: block; border: 1px solid #000; padding: 5px; text-align: center; background: #f9f9f9; }
+            .rate-note { font-weight: bold; font-size: 13px; margin-bottom: 5px; display: block; border: 1px solid #000; padding: 5px; text-align: center; background: #f9f9f9; }
         }
     </style>
 </head>
@@ -174,12 +174,12 @@
         <div class="input-grid">
             <div class="form-group full-width">
                 <label>Roll Name</label>
-                <input type="text" id="rollName" placeholder="e.g. TSL ECL Roll">
+                <input type="text" id="rollName" placeholder="e.g. TSL ECL Roll (300 x 1800 mm)">
             </div>
 
             <div class="form-group">
                 <label>G.P. No.</label>
-                <input type="text" id="gpNo" placeholder="101">
+                <input type="text" id="gpNo" placeholder="TSL/26/27850">
             </div>
             <div class="form-group">
                 <label>Total Qty</label>
@@ -201,12 +201,12 @@
             </div>
             <div class="form-group">
                 <label>Roll ID</label>
-                <input type="text" id="rollId" placeholder="ID-001">
+                <input type="text" id="rollId" placeholder="S-001">
             </div>
 
             <div class="form-group">
                 <label>Shell Dia</label>
-                <input type="text" id="shellDia" placeholder="e.g. 500">
+                <input type="text" id="shellDia" placeholder="e.g. 199">
             </div>
             <div class="form-group">
                 <label>Polymer</label>
@@ -323,13 +323,13 @@
 
         // 1. Check Header Info
         if (!rollName || !gpNo || !recvDate || !supplyDate || !totalQtyInput || !polymer) {
-            alert("Please fill all Header details (Roll Name, GP No, Dates, Qty, Polymer)!");
+            alert("Please fill all required details (Roll Name, GP No, Dates, Qty, Polymer)!");
             return;
         }
 
         // 2. Check Row Info (Added Shell Dia Check)
         if (!rollId || !shellDia || bWt <= 0 || bRate <= 0 || tWt <= 0 || tRate <= 0) {
-            alert("Please fill all Entry details (Roll ID, Shell Dia, Weights, Rates)!\nWeights & Rates must be greater than 0.");
+            alert("Please fill all required details (Roll ID, Shell Dia, Weights, Rates)!\nWeights & Rates must be greater than 0.");
             return;
         }
 
