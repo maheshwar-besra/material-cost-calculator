@@ -9,7 +9,6 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Smooth animation styling for the circular countdown ring */
         .timer-ring {
             transition: stroke-dashoffset 1s linear;
             transform: rotate(-90deg);
@@ -39,12 +38,10 @@
 
         <!-- Status Messaging Area -->
         <div class="h-14 flex items-center justify-center mb-6">
-            <!-- Listening Pulse -->
             <div id="status-listening" class="hidden flex flex-col items-center text-rose-500 font-bold text-lg">
                 <span class="animate-bounce">बोलो! (Speak now...)</span>
                 <span id="timer-text" class="text-xs font-mono text-slate-400 mt-1">Time left: 10s</span>
             </div>
-            <!-- Success Green Tick -->
             <div id="status-success" class="hidden text-emerald-500 flex items-center space-x-2 scale-110 transition-all duration-300">
                 <i class="fa-solid fa-circle-check text-3xl"></i>
                 <span class="text-lg font-black">ठीक है! 🎉</span>
@@ -53,15 +50,11 @@
 
         <!-- Circular Countdown Mic Button Container -->
         <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
-            <!-- SVG Timer Background Ring and Animated Countdown Ring -->
             <svg class="absolute inset-0 w-full h-full">
-                <!-- Background track circle -->
                 <circle cx="64" cy="64" r="54" stroke="#f1f5f9" stroke-width="8" fill="transparent" />
-                <!-- Dynamic countdown tracking ring -->
                 <circle id="countdown-circle" class="timer-ring" cx="64" cy="64" r="54" stroke="#f43f5e" stroke-width="8" fill="transparent" stroke-dasharray="339.29" stroke-dashoffset="0" stroke-linecap="round" />
             </svg>
 
-            <!-- Main Mic Action Button inside the rings -->
             <button id="mic-btn" class="absolute w-24 h-24 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-4xl shadow-md transition-all transform active:scale-90 flex items-center justify-center cursor-pointer border-4 border-white z-10">
                 <i id="mic-icon" class="fa-solid fa-microphone"></i>
             </button>
@@ -94,37 +87,40 @@
     <script>
         const wordData = {
             twoLetter: [
-                { hindi: "घर", english: "Ghar (House)" },
-                { hindi: "फल", english: "Phal (Fruit)" },
-                { hindi: "बस", english: "Bas (Bus)" },
-                { hindi: "जल", english: "Jal (Water)" },
-                { hindi: "नल", english: "Nal (Tap)" }
+                { hindi: "घर", english: "Ghar (House)", alternatives: ["घार", "कर", "घड़"] },
+                { hindi: "फल", english: "Phal (Fruit)", alternatives: ["फाल", "पल", "हल"] },
+                { hindi: "बस", english: "Bas (Bus)", alternatives: ["बास", "वश", "बज"] },
+                { hindi: "जल", english: "Jal (Water)", alternatives: ["जाल", "चल"] },
+                { hindi: "नल", english: "Nal (Tap)", alternatives: ["नाल", "मल"] }
             ],
             threeLetter: [
-                { hindi: "कमल", english: "Kamal (Lotus)" },
-                { hindi: "मगर", english: "Magar (Crocodile)" },
-                { hindi: "बटन", english: "Batan (Button)" },
-                { hindi: "कलम", english: "Kalam (Pen)" },
-                { hindi: "सड़क", english: "Sadak (Road)" }
+                { hindi: "कमल", english: "Kamal (Lotus)", alternatives: ["कमाल", "कमड़"] },
+                { hindi: "मगर", english: "Magar (Crocodile)", alternatives: ["मागर", "मगरमच्छ"] },
+                { hindi: "बटन", english: "Batan (Button)", alternatives: ["बटान", "बटम"] },
+                { hindi: "कलम", english: "Kalam (Pen)", alternatives: ["कलाम", "करम"] },
+                { hindi: "सड़क", english: "Sadak (Road)", alternatives: ["सडक", "सारक"] }
             ],
             matra: [
-                { hindi: "राजा", english: "Raja (King) - आ मात्रा" },
-                { hindi: "किताब", english: "Kitaab (Book) - इ मात्रा" },
-                { hindi: "मछली", english: "Machhli (Fish) - ई मात्रा" },
-                { hindi: "गुलाब", english: "Gulaab (Rose) - उ मात्रा" },
-                { hindi: "सूरज", english: "Sooraj (Sun) - ऊ मात्रा" }
+                { hindi: "राजा", english: "Raja (King)", alternatives: ["राज", "राज़ा"] },
+                { hindi: "किताब", english: "Kitaab (Book)", alternatives: ["कीताब", "किताबें"] },
+                { hindi: "मछली", english: "Machhli (Fish)", alternatives: ["मछलीं", "मचली"] },
+                { hindi: "गुलाब", english: "Gulaab (Rose)", alternatives: ["गुलाप", "गुलाब का फूल"] },
+                { hindi: "सूरज", english: "Sooraj (Sun)", alternatives: ["सूरज", "सुरज"] }
             ]
         };
 
         let currentCategory = 'twoLetter';
         let currentIndex = 0;
         
-        // Timer Configuration Parameters
         let countdownTimer = null;
         let timeLeft = 10;
         const totalDuration = 10;
         const circleRadius = 54;
-        const circumference = 2 * Math.PI * circleRadius; // ~339.29
+        const circumference = 2 * Math.PI * circleRadius;
+
+        // Dynamic recognition variable
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null; 
 
         // DOM Elements
         const wordEl = document.getElementById('hindi-word');
@@ -140,24 +136,9 @@
         const retryBtn = document.getElementById('retry-btn');
         const skipBtn = document.getElementById('skip-btn');
 
-        // Web Speech Recognition Engine API Setup
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.lang = 'hi-IN'; 
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-        } else {
-            alert("Please open this app in Google Chrome for Voice recognition to work!");
-        }
-
-        // Voice Feedback Audio Engines
         function speakFeedback(textMessage) {
             if ('speechSynthesis' in window) {
-                // Cancel any playing speech immediately so sounds don't overlap
-                window.speechSynthesis.cancel();
+                window.speechSynthesis.cancel(); // Critical: stops overlay loops
                 const utterance = new SpeechSynthesisUtterance(textMessage);
                 utterance.lang = 'hi-IN';
                 utterance.rate = 0.95; 
@@ -165,7 +146,6 @@
             }
         }
 
-        // Load Word Mechanics
         function updateWord() {
             const currentList = wordData[currentCategory];
             wordEl.textContent = currentList[currentIndex].hindi;
@@ -182,35 +162,29 @@
             micIcon.className = "fa-solid fa-microphone";
         }
 
-        // Countdown Circle Animations Handling
         function startTimerRing() {
             clearInterval(countdownTimer);
             timeLeft = totalDuration;
             timerText.textContent = `Time left: ${timeLeft}s`;
-            
-            // Reset stroke dash offset to look full tracking circle
             countdownCircle.style.strokeDashoffset = 0;
-            countdownCircle.style.stroke = "#10b981"; // Fresh green at beginning
+            countdownCircle.style.stroke = "#10b981";
 
             countdownTimer = setInterval(() => {
                 timeLeft--;
                 timerText.textContent = `Time left: ${timeLeft}s`;
 
-                // Calculate progress percentage and offset
                 const progressPercentage = timeLeft / totalDuration;
                 const offset = circumference * (1 - progressPercentage);
                 countdownCircle.style.strokeDashoffset = offset;
 
-                // Turn orange/red as deadline closes in
-                if (timeLeft <= 6 && timeLeft > 3) {
-                    countdownCircle.style.stroke = "#f59e0b"; // amber
-                } else if (timeLeft <= 3) {
-                    countdownCircle.style.stroke = "#ef4444"; // intense red
+                if (timeLeft <= 5 && timeLeft > 2) {
+                    countdownCircle.style.stroke = "#f59e0b";
+                } else if (timeLeft <= 2) {
+                    countdownCircle.style.stroke = "#ef4444";
                 }
 
-                // If timer runs dry completely
                 if (timeLeft <= 0) {
-                    handleFailure("Timeout! No audio detected.");
+                    handleFailure("समय समाप्त! (Time out)");
                 }
             }, 1000);
         }
@@ -218,25 +192,27 @@
         function stopTimerRing() {
             clearInterval(countdownTimer);
             countdownCircle.style.strokeDashoffset = 0;
-            countdownCircle.style.stroke = "#f43f5e"; // reset base rose tone
+            countdownCircle.style.stroke = "#f43f5e";
         }
 
-        // Processing Failure States (Time-outs or mismatched inputs)
         function handleFailure(reasonText, spokenText = "") {
             stopTimerRing();
-            if (recognition) recognition.stop();
+            if (recognition) {
+                recognition.onresult = null;
+                recognition.onerror = null;
+                try { recognition.stop(); } catch(e){}
+            }
             resetStatus();
 
             speakFeedback("गलत है फिर से कोशिश करें");
             
             const targetWord = wordData[currentCategory][currentIndex].hindi;
-            const textToDisplay = spokenText ? `You said: <span class="text-rose-500 font-bold">"${spokenText}"</span>` : `<span class="text-rose-500 font-semibold">${reasonText}</span>`;
+            const textToDisplay = spokenText ? `आपने बोला: <span class="text-rose-500 font-bold">"${spokenText}"</span>` : `<span class="text-rose-500 font-semibold">${reasonText}</span>`;
             
-            document.getElementById('modal-feedback').innerHTML = `${textToDisplay}<br>Try to say: <span class="text-amber-600 font-bold">"${targetWord}"</span>`;
+            document.getElementById('modal-feedback').innerHTML = `${textToDisplay}<br>सही शब्द: <span class="text-amber-600 font-bold">"${targetWord}"</span>`;
             retryModal.classList.remove('hidden');
         }
 
-        // Handle Category Tab Switches
         function switchCategory(category) {
             currentCategory = category;
             currentIndex = 0;
@@ -250,33 +226,60 @@
             updateWord();
         }
 
-        // Microphone Button Event Handler
+        // Main Mic Click Logic
         micBtn.addEventListener('click', () => {
-            if (!recognition) return;
+            if (!SpeechRecognition) {
+                alert("Chrome Browser is recommended!");
+                return;
+            }
+
             resetStatus();
             
+            // CRITICAL FIX: Kill older instance safely & initialize a brand new instance 
+            if (recognition) {
+                try { recognition.abort(); } catch(e){}
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            // maxAlternatives: 5 allows the browser to return multiple guesses if unsure
+            recognition.maxAlternatives = 5; 
+            recognition.interimResults = false;
+
             statusListening.classList.remove('hidden');
             micBtn.className = "absolute w-24 h-24 bg-slate-800 text-white rounded-full text-4xl shadow-md flex items-center justify-center cursor-pointer border-4 border-white z-10";
             micIcon.className = "fa-solid fa-face-listening animate-pulse";
             
             startTimerRing();
-            recognition.start();
-        });
 
-        // Speech Engine Event Observers
-        if (recognition) {
+            // Set up runtime bindings dynamically
             recognition.onresult = function(event) {
-                // Instantly freeze loop once voice lands
                 clearInterval(countdownTimer); 
                 
-                const spokenText = event.results[0][0].transcript.trim();
-                const targetWord = wordData[currentCategory][currentIndex].hindi;
+                const targetObj = wordData[currentCategory][currentIndex];
+                const targetWord = targetObj.hindi;
                 
-                transcriptPreview.textContent = `आपने बोला: "${spokenText}"`;
-                const cleanSpoken = spokenText.replace(/[।.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
+                // Read all alternative guesses returned by Chrome's engine
+                let alternativeGuesses = [];
+                for (let i = 0; i < event.results[0].length; i++) {
+                    let text = event.results[0][i].transcript.trim().replace(/[।.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
+                    alternativeGuesses.push(text);
+                }
 
-                if (cleanSpoken === targetWord) {
-                    // Correct Matches Workflow
+                const primarySpoken = alternativeGuesses[0];
+                transcriptPreview.textContent = `आपने बोला: "${primarySpoken}"`;
+
+                // Smart Check Logic:
+                // 1. Check if the exact target word is in any of the engine's alternatives
+                // 2. Check if the target word is a substring of what was said (handles padding noise)
+                // 3. Check against child phonetic alternative rules defined in database
+                let isCorrect = alternativeGuesses.some(guess => 
+                    guess === targetWord || 
+                    guess.includes(targetWord) ||
+                    targetObj.alternatives.includes(guess)
+                );
+
+                if (isCorrect) {
                     resetStatus();
                     statusSuccess.classList.remove('hidden');
                     speakFeedback("ठीक है"); 
@@ -287,23 +290,24 @@
                         updateWord();
                     }, 1800);
                 } else {
-                    // Mismatched Strings Workflow
-                    handleFailure("Mismatched sound target.", spokenText);
+                    handleFailure(null, primarySpoken);
                 }
             };
 
             recognition.onerror = function(event) {
-                // Ignore structural processing stops, capture active hardware drops
                 if (event.error !== 'no-speech') {
-                    handleFailure("Error capturing voice audio.");
+                    handleFailure("आवाज़ स्पष्ट नहीं थी (Unclear Audio)");
                 }
             };
-        }
 
-        // Interactive Modal Pop Up Box Actions
+            recognition.start();
+        });
+
+        // Interactive Modal Actions
         retryBtn.addEventListener('click', () => {
             retryModal.classList.add('hidden');
-            setTimeout(() => { micBtn.click(); }, 300);
+            // Tiny delay ensures elements clean up nicely before starting the mic engine again
+            setTimeout(() => { micBtn.click(); }, 250);
         });
 
         skipBtn.addEventListener('click', () => {
@@ -313,7 +317,6 @@
             updateWord();
         });
 
-        // Initialize UI Elements
         updateWord();
     </script>
 </body>
