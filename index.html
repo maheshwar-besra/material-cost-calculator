@@ -3,36 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hindi Pronunciation Checker</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Hindi Pronunciation Practice</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Hindi Pronunciation Trainer</h1>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans">
 
-        <!-- Display Area -->
-        <div id="wordDisplay" class="word-box">
-            Click the button to start.
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center relative border border-slate-100">
+        
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">Hindi Pronunciation</h1>
+        <p class="text-sm text-slate-500 mb-8">Tap the mic and speak the word clearly.</p>
+
+        <div class="mb-8">
+            <div id="hindi-word" class="text-5xl font-extrabold text-indigo-600 tracking-wide mb-2">नमस्ते</div>
+            <div id="english-meaning" class="text-sm text-slate-400 italic">"Namaste" (Hello)</div>
         </div>
 
-        <!-- Action Button -->
-        <button id="recordButton">Record Pronunciation</button>
-
-        <!-- Feedback Area -->
-        <div id="feedback" class="feedback-box">
-            <!-- Results will appear here -->
-        </div>
-
-        <!-- Navigation/Error Modal (Hidden by default) -->
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <p id="modalMessage"></p>
-                <button id="retryButton">Try Again</button>
-                <button id="skipButton">Skip</button>
+        <div class="h-16 flex items-center justify-center mb-6">
+            <div id="status-listening" class="hidden flex items-center space-x-2 text-indigo-500 font-medium animate-pulse">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                <span>Listening...</span>
+            </div>
+            <div id="status-success" class="hidden text-emerald-500 flex flex-col items-center scale-110 transition-all duration-300">
+                <i class="fa-solid fa-circle-check text-4xl mb-1"></i>
+                <span class="text-sm font-semibold">Correct! Moving to next...</span>
             </div>
         </div>
+
+        <button id="mic-btn" class="w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 focus:outline-none flex items-center justify-center mx-auto cursor-pointer">
+            <i id="mic-icon" class="fa-solid fa-microphone"></i>
+        </button>
+
+        <p id="transcript-preview" class="text-xs text-slate-400 mt-4 h-4"></p>
+
+        <div id="retry-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl transform scale-100 transition-all text-center">
+                <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Not Quite Right</h3>
+                <p id="modal-feedback" class="text-sm text-slate-500 mb-6">Keep trying to perfect it!</p>
+                <div class="flex space-x-3">
+                    <button id="skip-btn" class="flex-1 py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-sm transition-colors cursor-pointer">
+                        Skip
+                    </button>
+                    <button id="retry-btn" class="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors cursor-pointer">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Word Bank Data
+        const wordBank = [
+            { hindi: "नमस्ते", english: "Namaste (Hello)" },
+            { hindi: "धन्यवाद", english: "Dhanyavaad (Thank you)" },
+            { hindi: "स्वागत", english: "Swaagat (Welcome)" },
+            { hindi: "दोस्त", english: "Dost (Friend)" },
+            { hindi: "प्यार", english: "Pyaar (Love)" },
+            { hindi: "खुशी", english: "Khushi (Happiness)" }
+        ];
+
+        let currentIndex = 0;
+
+        // DOM Elements
+        const wordEl = document.getElementById('hindi-word');
+        const meaningEl = document.getElementById('english-meaning');
+        const micBtn = document.getElementById('mic-btn');
+        const micIcon = document.getElementById('mic-icon');
+        const statusListening = document.getElementById('status-listening');
+        const statusSuccess = document.getElementById('status-success');
+        const transcriptPreview = document.getElementById('transcript-preview');
+        const retryModal = document.getElementById('retry-modal');
+        const retryBtn = document.getElementById('retry-btn');
+        const skipBtn = document.getElementById('skip-btn');
+
+        // Initialize Web Speech API
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN'; // Setting language context to Hindi (India)
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+        } else {
+            alert("Your browser does not support Web Speech API. Please try Google Chrome.");
+        }
+
+        // Load Word
+        function updateWord() {
+            wordEl.textContent = wordBank[currentIndex].hindi;
+            meaningEl.textContent = `"${wordBank[currentIndex].english}"`;
+            transcriptPreview.textContent = "";
+            resetStatus();
+        }
+
+        function resetStatus() {
+            statusListening.classList.add('hidden');
+            statusSuccess.classList.add('hidden');
+            micBtn.className = "w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center justify-center mx-auto cursor-pointer";
+            micIcon.className = "fa-solid fa-microphone";
+        }
+
+        // Mic Click Action
+        micBtn.addEventListener('click', () => {
+            if (!recognition) return;
+            
+            resetStatus();
+            // Update UI to listening state
+            statusListening.classList.remove('hidden');
+            micBtn.className = "w-20 h-20 bg-rose-500 text-white rounded-full text-2xl shadow-lg shadow-rose-200 animate-pulse flex items-center justify-center mx-auto cursor-pointer";
+            
+            recognition.start();
+        });
+
+        // Speech API Results
+        if (recognition) {
+            recognition.onresult = function(event) {
+                const spokenText = event.results[0][0].transcript.trim();
+                const targetWord = wordBank[currentIndex].hindi;
+                
+                transcriptPreview.textContent = `You said: "${spokenText}"`;
+
+                // Quick strip of common punctuation punctuation just in case
+                const cleanSpoken = spokenText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?।]/g,"");
+
+                if (cleanSpoken === targetWord) {
+                    // SUCCESS STATE
+                    resetStatus();
+                    statusSuccess.classList.remove('hidden');
+                    
+                    // Delay slightly so user sees the green checkmark before moving forward
+                    setTimeout(() => {
+                        currentIndex = (currentIndex + 1) % wordBank.length;
+                        updateWord();
+                    }, 2000);
+                } else {
+                    // FAIL STATE -> Show Popup Modal
+                    resetStatus();
+                    document.getElementById('modal-feedback').innerHTML = `You said <b class="text-rose-600">"${spokenText}"</b>.<br>Expected: <b>"${targetWord}"</b>`;
+                    retryModal.classList.remove('hidden');
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech Recognition Error: ", event.error);
+                resetStatus();
+                alert("Error capturing audio: " + event.error + ". Make sure mic permissions are enabled.");
+            };
+
+            recognition.onspeechend = function() {
+                recognition.stop();
+            };
+        }
+
+        // Modal Button Handlers
+        retryBtn.addEventListener('click', () => {
+            retryModal.classList.add('hidden');
+            micBtn.click(); // Programmatically trigger the mic again
+        });
+
+        skipBtn.addEventListener('click', () => {
+            retryModal.classList.add('hidden');
+            currentIndex = (currentIndex + 1) % wordBank.length;
+            updateWord();
+        });
+
+        // Initial setup
+        updateWord();
+    </script>
 </body>
 </html>
