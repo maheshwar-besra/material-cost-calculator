@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Karaoke Audio Sync</title>
+    <title>Premium Karaoke Audio Sync - Fixed</title>
     <style>
         :root {
             --bg-color: #0a0a0c;
-            --card-bg: rgba(20, 20, 27, 0.7);
+            --card-bg: rgba(20, 20, 27, 0.85);
             --accent-color: #00ffcc;
             --text-muted: #4a4a5a;
+            --error-color: #ff4757;
         }
 
         body {
-            font-family: 'SF Pro Display', -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             background-image: radial-gradient(circle at 50% 50%, #1a1525 0%, var(--bg-color) 80%);
             color: #ffffff;
@@ -24,10 +25,8 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            overflow: hidden;
         }
 
-        /* प्रीमियम ग्लासमोर्फिज़्म कंटेनर */
         .container {
             text-align: center;
             width: 100%;
@@ -41,7 +40,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* न्यूमॉर्फिक / प्रीमियम नियॉन बटन */
         .audio-btn {
             background: transparent;
             color: white;
@@ -51,11 +49,11 @@
             font-weight: 600;
             border-radius: 100px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            letter-spacing: 1px;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 10px;
+            outline: none;
         }
 
         .audio-btn:hover {
@@ -66,15 +64,10 @@
         }
 
         .audio-btn.playing {
-            border-color: #ff4757;
-            color: #ff4757;
-        }
-        
-        .audio-btn.playing:hover {
-            box-shadow: 0 0 25px rgba(255, 71, 87, 0.2);
+            border-color: var(--error-color);
+            color: var(--error-color);
         }
 
-        /* वर्ड कंटेनर बॉक्स */
         .transcript-box {
             min-height: 160px;
             display: flex;
@@ -86,31 +79,35 @@
             padding: 10px;
         }
 
-        /* हर एक शब्द की बेस स्टाइल */
         .word {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 600;
             line-height: 1.4;
             color: var(--text-muted);
-            opacity: 0.15;
-            transform: scale(0.9) translateY(5px);
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0.2;
+            transform: scale(0.95);
+            transition: all 0.25s ease;
             display: inline-block;
         }
 
-        /* जब शब्द बोला जा रहा हो (Smooth Highlight Animation) */
         .word.active {
             opacity: 1;
             color: #ffffff;
-            transform: scale(1.1) translateY(0);
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            transform: scale(1.15);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
         }
 
-        /* जो शब्द बोले जा चुके हैं */
         .word.passed {
-            opacity: 0.7;
+            opacity: 0.75;
             color: var(--accent-color);
-            transform: scale(1) translateY(0);
+            transform: scale(1);
+        }
+
+        #statusMessage {
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--error-color);
+            display: none;
         }
     </style>
 </head>
@@ -118,14 +115,15 @@
 
 <div class="container">
     <button id="playBtn" class="audio-btn">
-        <svg id="btnIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <span id="btnIcon">►</span>
         <span id="btnText">प्ले ऑडियो</span>
     </button>
+    
+    <div id="statusMessage"></div>
 
-    <audio id="myAudio" src="m.mp3" loop></audio>
+    <audio id="myAudio" src="m.mp3" loop preload="auto"></audio>
 
-    <div id="transcriptBox" class="transcript-box">
-        </div>
+    <div id="transcriptBox" class="transcript-box"></div>
 </div>
 
 <script>
@@ -134,24 +132,23 @@
     const btnText = document.getElementById('btnText');
     const btnIcon = document.getElementById('btnIcon');
     const transcriptBox = document.getElementById('transcriptBox');
+    const statusMessage = document.getElementById('statusMessage');
 
-    // ऑडियो टाइमिंग के हिसाब से हर एक शब्द का सटीक मैप (Seconds)
+    // ऑडियो टाइमलाइन डेटा
     const wordsTimeline = [
         { word: "थी", time: 0.0 }, { word: "जब", time: 0.8 }, { word: "लोग", time: 1.3 },
         { word: "मरने", time: 2.2 }, { word: "के", time: 2.7 }, { word: "करीब", time: 3.1 }, { word: "होते", time: 3.6 }, { word: "हैं,", time: 4.0 },
         { word: "आखिरी", time: 4.4 }, { word: "सांसें", time: 5.0 }, { word: "लेते", time: 5.5 }, { word: "हैं।", time: 5.9 },
-        
         { word: "वो", time: 6.6 }, { word: "पछतावे", time: 7.0 }, { word: "जताते", time: 7.7 }, { word: "हैं,", time: 8.1 },
         { word: "जैसे", time: 8.4 }, { word: "क्या", time: 8.8 }, { word: "करना", time: 9.1 }, { word: "चाहिए", time: 9.5 }, { word: "था,", time: 9.9 },
         { word: "जिससे", time: 10.3 }, { word: "ठीक", time: 10.7 }, { word: "होता,", time: 11.1 },
         { word: "जो", time: 11.5 }, { word: "उस", time: 11.7 }, { word: "वक्त", time: 11.9 }, { word: "उन्होंने", time: 12.2 }, { word: "नहीं", time: 12.5 }, { word: "किया।", time: 12.8 },
-        
         { word: "कि", time: 13.5 }, { word: "अगर", time: 13.9 }, { word: "मौत", time: 14.3 }, { word: "के", time: 14.7 }, { word: "वक्त", time: 15.0 },
         { word: "तुम्हें", time: 15.4 }, { word: "पछतावा", time: 15.8 }, { word: "हो...", time: 16.7 },
         { word: "तो", time: 17.6 }, { word: "जिंदगी", time: 18.2 }, { word: "गलत", time: 19.0 }, { word: "तरीके", time: 19.4 }, { word: "से", time: 19.7 }, { word: "जी।", time: 19.9 }
     ];
 
-    // DOM में शब्दों को इनिशियलाइज़ करना
+    // शब्दों को स्क्रीन पर लोड करना
     function generateWords() {
         transcriptBox.innerHTML = '';
         wordsTimeline.forEach((item, index) => {
@@ -162,32 +159,37 @@
             transcriptBox.appendChild(span);
         });
     }
-
     generateWords();
 
-    // प्ले/पॉज़ टॉगल
+    // प्ले/पॉज़ फंक्शनलिटी (त्रुटि जाँच के साथ)
     playBtn.addEventListener('click', () => {
         if (audio.paused) {
-            audio.play();
-            playBtn.classList.add('playing');
-            btnText.innerText = "पॉज़ ऑडियो";
-            btnIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause SVG Icon
+            audio.play().then(() => {
+                statusMessage.style.display = "none";
+                playBtn.classList.add('playing');
+                btnText.innerText = "पॉज़ ऑडियो";
+                btnIcon.innerText = "║";
+            }).catch(error => {
+                console.error("Audio playback failed:", error);
+                statusMessage.style.display = "block";
+                statusMessage.innerText = "त्रुटि: ऑडियो फ़ाइल 'm.mp3' नहीं मिल सकी या लोड नहीं हो पाई।";
+            });
         } else {
             audio.pause();
             playBtn.classList.remove('playing');
             btnText.innerText = "प्ले ऑडियो";
-            btnIcon.innerHTML = '<path d="M8 5v14l11-7z"/>'; // Play SVG Icon
+            btnIcon.innerText = "►";
         }
     });
 
-    // रियल-टाइम वर्ड-बाय-वर्ड एनीमेशन सिंकिंग
+    // वर्ड-बाय-वर्ड रियल टाइम ट्रैकिंग
     audio.addEventListener('timeupdate', () => {
         const currentTime = audio.currentTime;
 
         wordsTimeline.forEach((item, index) => {
             const wordElement = document.getElementById(`word-${index}`);
+            if (!wordElement) return;
             
-            // यह चेक करने के लिए कि क्या यह शब्द वर्तमान में बोला जा रहा है
             const nextItem = wordsTimeline[index + 1];
             const isCurrentWord = currentTime >= item.time && (!nextItem || currentTime < nextItem.time);
             const isPassedWord = currentTime >= item.time;
@@ -202,14 +204,20 @@
         });
     });
 
-    // जब ऑडियो लूप होकर दोबारा शुरू हो, तो एनीमेशन रीसेट करें
+    // लूप रीसेट होने पर एनिमेशन साफ़ करना
     audio.addEventListener('seeked', () => {
-        if(audio.currentTime < 1) {
+        if (audio.currentTime < 1) {
             wordsTimeline.forEach((_, index) => {
                 const wordElement = document.getElementById(`word-${index}`);
-                if(wordElement) wordElement.className = 'word';
+                if (wordElement) wordElement.className = 'word';
             });
         }
+    });
+
+    // ऑडियो लोड एरर हैंडलर
+    audio.addEventListener('error', () => {
+        statusMessage.style.display = "block";
+        statusMessage.innerText = "Error: 'm.mp3' फ़ाइल लोड करने में विफल। कृपया फ़ाइल नाम और पाथ की जाँच करें।";
     });
 </script>
 
