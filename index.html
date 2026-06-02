@@ -3,52 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hindi Pronunciation Practice</title>
+    <title>Bal Hindi Pronunciation</title>
+    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans">
+<body class="bg-amber-50 flex flex-col items-center justify-center min-h-screen font-sans p-4">
 
-    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center relative border border-slate-100">
+    <!-- Category Tabs for Kids -->
+    <div class="flex flex-wrap gap-2 justify-center mb-6 max-w-md w-full">
+        <button onclick="switchCategory('twoLetter')" id="tab-twoLetter" class="category-tab px-4 py-2 bg-amber-400 text-amber-900 font-bold rounded-full shadow-md text-sm transition-all border-2 border-amber-500 cursor-pointer">२ अक्षर वाले</button>
+        <button onclick="switchCategory('threeLetter')" id="tab-threeLetter" class="category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer">३ अक्षर वाले</button>
+        <button onclick="switchCategory('matra')" id="tab-matra" class="category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer">मात्रा वाले शब्द</button>
+    </div>
+
+    <!-- Main Card Box -->
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center relative border-4 border-amber-200">
         
-        <h1 class="text-2xl font-bold text-slate-800 mb-2">Hindi Pronunciation</h1>
-        <p class="text-sm text-slate-500 mb-8">Tap the mic and speak the word clearly.</p>
+        <h1 class="text-xl font-black text-amber-600 tracking-wide mb-6">आओ हिंदी सीखें! 🌟</h1>
 
-        <div class="mb-8">
-            <div id="hindi-word" class="text-5xl font-extrabold text-indigo-600 tracking-wide mb-2">नमस्ते</div>
-            <div id="english-meaning" class="text-sm text-slate-400 italic">"Namaste" (Hello)</div>
+        <!-- Word Display Area -->
+        <div class="bg-amber-100/50 py-8 rounded-2xl border-2 border-dashed border-amber-300 mb-6">
+            <div id="hindi-word" class="text-6xl font-black text-amber-700 tracking-wider drop-shadow-xs mb-3">घर</div>
+            <div id="english-meaning" class="text-base text-slate-500 font-medium font-mono">Ghar (House)</div>
         </div>
 
-        <div class="h-16 flex items-center justify-center mb-6">
-            <div id="status-listening" class="hidden flex items-center space-x-2 text-indigo-500 font-medium animate-pulse">
-                <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                <span>Listening...</span>
+        <!-- Status Messaging Area -->
+        <div class="h-14 flex items-center justify-center mb-6">
+            <!-- Listening Pulse -->
+            <div id="status-listening" class="hidden flex items-center space-x-2 text-rose-500 font-bold animate-bounce text-lg">
+                <i class="fa-solid fa-waveform-lines animate-pulse mr-1"></i>
+                <span>बोलो! (Speak now...)</span>
             </div>
-            <div id="status-success" class="hidden text-emerald-500 flex flex-col items-center scale-110 transition-all duration-300">
-                <i class="fa-solid fa-circle-check text-4xl mb-1"></i>
-                <span class="text-sm font-semibold">Correct! Moving to next...</span>
+            <!-- Success Green Tick -->
+            <div id="status-success" class="hidden text-emerald-500 flex items-center space-x-2 scale-110 transition-all duration-300">
+                <i class="fa-solid fa-circle-check text-3xl"></i>
+                <span class="text-lg font-black">ठीक है! 🎉</span>
             </div>
         </div>
 
-        <button id="mic-btn" class="w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 focus:outline-none flex items-center justify-center mx-auto cursor-pointer">
+        <!-- Big Mic Button for Kids -->
+        <button id="mic-btn" class="w-24 h-24 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-4xl shadow-xl shadow-rose-200 transition-all transform active:scale-90 flex items-center justify-center mx-auto cursor-pointer border-4 border-white">
             <i id="mic-icon" class="fa-solid fa-microphone"></i>
         </button>
 
-        <p id="transcript-preview" class="text-xs text-slate-400 mt-4 h-4"></p>
+        <p id="transcript-preview" class="text-sm font-semibold text-slate-400 mt-4 h-4"></p>
 
-        <div id="retry-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl transform scale-100 transition-all text-center">
-                <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fa-solid fa-circle-xmark"></i>
+        <!-- Retry/Skip Modal Pop Up Box -->
+        <div id="retry-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center border-4 border-rose-300">
+                <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid fa-face-frown"></i>
                 </div>
-                <h3 class="text-lg font-bold text-slate-800 mb-1">Not Quite Right</h3>
-                <p id="modal-feedback" class="text-sm text-slate-500 mb-6">Keep trying to perfect it!</p>
+                <h3 class="text-xl font-black text-slate-800 mb-1">गलत जवाब!</h3>
+                <p id="modal-feedback" class="text-sm text-slate-500 mb-6">फिर से कोशिश करो!</p>
                 <div class="flex space-x-3">
-                    <button id="skip-btn" class="flex-1 py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg text-sm transition-colors cursor-pointer">
-                        Skip
+                    <button id="skip-btn" class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors cursor-pointer">
+                        Skip⏭️
                     </button>
-                    <button id="retry-btn" class="flex-1 py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors cursor-pointer">
-                        Try Again
+                    <button id="retry-btn" class="flex-1 py-3 px-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm transition-colors cursor-pointer shadow-md shadow-rose-100">
+                        Try Again 🔄
                     </button>
                 </div>
             </div>
@@ -56,17 +71,34 @@
 
     </div>
 
+    <!-- Application Logic -->
     <script>
-        // Word Bank Data
-        const wordBank = [
-            { hindi: "नमस्ते", english: "Namaste (Hello)" },
-            { hindi: "धन्यवाद", english: "Dhanyavaad (Thank you)" },
-            { hindi: "स्वागत", english: "Swaagat (Welcome)" },
-            { hindi: "दोस्त", english: "Dost (Friend)" },
-            { hindi: "प्यार", english: "Pyaar (Love)" },
-            { hindi: "खुशी", english: "Khushi (Happiness)" }
-        ];
+        // Structured Curriculum for Kids
+        const wordData = {
+            twoLetter: [
+                { hindi: "घर", english: "Ghar (House)" },
+                { hindi: "फल", english: "Phal (Fruit)" },
+                { hindi: "बस", english: "Bas (Bus)" },
+                { hindi: "जल", english: "Jal (Water)" },
+                { hindi: "नल", english: "Nal (Tap)" }
+            ],
+            threeLetter: [
+                { hindi: "कमल", english: "Kamal (Lotus)" },
+                { hindi: "मगर", english: "Magar (Crocodile)" },
+                { hindi: "बटन", english: "Batan (Button)" },
+                { hindi: "कलम", english: "Kalam (Pen)" },
+                { hindi: "सड़क", english: "Sadak (Road)" }
+            ],
+            matra: [
+                { hindi: "राजा", english: "Raja (King) - आ मात्रा" },
+                { hindi: "किताब", english: "Kitaab (Book) - इ मात्रा" },
+                { hindi: "मछली", english: "Machhli (Fish) - ई मात्रा" },
+                { hindi: "गुलाब", english: "Gulaab (Rose) - उ मात्रा" },
+                { hindi: "सूरज", english: "Sooraj (Sun) - ऊ मात्रा" }
+            ]
+        };
 
+        let currentCategory = 'twoLetter';
         let currentIndex = 0;
 
         // DOM Elements
@@ -81,23 +113,34 @@
         const retryBtn = document.getElementById('retry-btn');
         const skipBtn = document.getElementById('skip-btn');
 
-        // Initialize Web Speech API
+        // Web Speech API Configs
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.lang = 'hi-IN'; // Setting language context to Hindi (India)
+            recognition.lang = 'hi-IN'; 
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
         } else {
-            alert("Your browser does not support Web Speech API. Please try Google Chrome.");
+            alert("This browser doesn't support Voice recognition. Kids should open this in Google Chrome!");
         }
 
-        // Load Word
+        // Text To Speech Setup ("Thik Hai" voice feedback)
+        function speakThikHai() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("ठीक है");
+                utterance.lang = 'hi-IN';
+                utterance.rate = 0.9; // Slightly slower for kids
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Load Word Mechanics
         function updateWord() {
-            wordEl.textContent = wordBank[currentIndex].hindi;
-            meaningEl.textContent = `"${wordBank[currentIndex].english}"`;
+            const currentList = wordData[currentCategory];
+            wordEl.textContent = currentList[currentIndex].hindi;
+            meaningEl.textContent = currentList[currentIndex].english;
             transcriptPreview.textContent = "";
             resetStatus();
         }
@@ -105,55 +148,69 @@
         function resetStatus() {
             statusListening.classList.add('hidden');
             statusSuccess.classList.add('hidden');
-            micBtn.className = "w-20 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center justify-center mx-auto cursor-pointer";
+            micBtn.className = "w-24 h-24 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-4xl shadow-xl shadow-rose-200 transition-all transform active:scale-90 flex items-center justify-center mx-auto cursor-pointer border-4 border-white";
             micIcon.className = "fa-solid fa-microphone";
         }
 
-        // Mic Click Action
+        // Handle Category Tab Switches
+        function switchCategory(category) {
+            currentCategory = category;
+            currentIndex = 0;
+            
+            // Toggle Tab UI Highlight
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.className = "category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer";
+            });
+            const activeTab = document.getElementById(`tab-${category}`);
+            activeTab.className = "category-tab px-4 py-2 bg-amber-400 text-amber-900 font-bold rounded-full shadow-md text-sm transition-all border-2 border-amber-500 cursor-pointer";
+            
+            updateWord();
+        }
+
+        // Mic Action
         micBtn.addEventListener('click', () => {
             if (!recognition) return;
-            
             resetStatus();
-            // Update UI to listening state
+            
             statusListening.classList.remove('hidden');
-            micBtn.className = "w-20 h-20 bg-rose-500 text-white rounded-full text-2xl shadow-lg shadow-rose-200 animate-pulse flex items-center justify-center mx-auto cursor-pointer";
+            micBtn.className = "w-24 h-24 bg-emerald-500 text-white rounded-full text-4xl shadow-xl shadow-emerald-200 flex items-center justify-center mx-auto cursor-pointer border-4 border-white animate-pulse";
+            micIcon.className = "fa-solid fa-face-listening animate-bounce";
             
             recognition.start();
         });
 
-        // Speech API Results
+        // Speech Engine Handlers
         if (recognition) {
             recognition.onresult = function(event) {
                 const spokenText = event.results[0][0].transcript.trim();
-                const targetWord = wordBank[currentIndex].hindi;
+                const targetWord = wordData[currentCategory][currentIndex].hindi;
                 
-                transcriptPreview.textContent = `You said: "${spokenText}"`;
+                transcriptPreview.textContent = `आपने बोला: "${spokenText}"`;
 
-                // Quick strip of common punctuation punctuation just in case
-                const cleanSpoken = spokenText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?।]/g,"");
+                // Quick strip of Hindi punctuation full stops (।)
+                const cleanSpoken = spokenText.replace(/[।]/g,"");
 
                 if (cleanSpoken === targetWord) {
-                    // SUCCESS STATE
+                    // Correct Pronunciation 
                     resetStatus();
                     statusSuccess.classList.remove('hidden');
+                    speakThikHai(); // Speaks "Thik hai!" aloud
                     
-                    // Delay slightly so user sees the green checkmark before moving forward
                     setTimeout(() => {
-                        currentIndex = (currentIndex + 1) % wordBank.length;
+                        const currentList = wordData[currentCategory];
+                        currentIndex = (currentIndex + 1) % currentList.length;
                         updateWord();
-                    }, 2000);
+                    }, 1800);
                 } else {
-                    // FAIL STATE -> Show Popup Modal
+                    // Wrong Pronunciation -> Show Pop Up Box
                     resetStatus();
-                    document.getElementById('modal-feedback').innerHTML = `You said <b class="text-rose-600">"${spokenText}"</b>.<br>Expected: <b>"${targetWord}"</b>`;
+                    document.getElementById('modal-feedback').innerHTML = `You said: <span class="text-rose-500 font-bold">"${spokenText}"</span><br>Try to say: <span class="text-amber-600 font-bold">"${targetWord}"</span>`;
                     retryModal.classList.remove('hidden');
                 }
             };
 
             recognition.onerror = function(event) {
-                console.error("Speech Recognition Error: ", event.error);
                 resetStatus();
-                alert("Error capturing audio: " + event.error + ". Make sure mic permissions are enabled.");
             };
 
             recognition.onspeechend = function() {
@@ -161,19 +218,20 @@
             };
         }
 
-        // Modal Button Handlers
+        // Modal Controls
         retryBtn.addEventListener('click', () => {
             retryModal.classList.add('hidden');
-            micBtn.click(); // Programmatically trigger the mic again
+            setTimeout(() => { micBtn.click(); }, 300); // Triggers mic automatically for kid to retry
         });
 
         skipBtn.addEventListener('click', () => {
             retryModal.classList.add('hidden');
-            currentIndex = (currentIndex + 1) % wordBank.length;
+            const currentList = wordData[currentCategory];
+            currentIndex = (currentIndex + 1) % currentList.length;
             updateWord();
         });
 
-        // Initial setup
+        // Init App On Start
         updateWord();
     </script>
 </body>
