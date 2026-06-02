@@ -1,225 +1,335 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Karaoke Audio Sync - Fixed</title>
+    <title>Bal Hindi Pronunciation Practice</title>
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #0a0a0c;
-            --card-bg: rgba(20, 20, 27, 0.85);
-            --accent-color: #00ffcc;
-            --text-muted: #4a4a5a;
-            --error-color: #ff4757;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 50% 50%, #1a1525 0%, var(--bg-color) 80%);
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            text-align: center;
-            width: 100%;
-            max-width: 700px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 50px 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .audio-btn {
-            background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            padding: 16px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 100px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            outline: none;
-        }
-
-        .audio-btn:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .audio-btn.playing {
-            border-color: var(--error-color);
-            color: var(--error-color);
-        }
-
-        .transcript-box {
-            min-height: 160px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 10px 14px;
-            margin-top: 40px;
-            padding: 10px;
-        }
-
-        .word {
-            font-size: 30px;
-            font-weight: 600;
-            line-height: 1.4;
-            color: var(--text-muted);
-            opacity: 0.2;
-            transform: scale(0.95);
-            transition: all 0.25s ease;
-            display: inline-block;
-        }
-
-        .word.active {
-            opacity: 1;
-            color: #ffffff;
-            transform: scale(1.15);
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-        }
-
-        .word.passed {
-            opacity: 0.75;
-            color: var(--accent-color);
-            transform: scale(1);
-        }
-
-        #statusMessage {
-            margin-top: 15px;
-            font-size: 14px;
-            color: var(--error-color);
-            display: none;
+        .timer-ring {
+            transition: stroke-dashoffset 0.1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
     </style>
 </head>
-<body>
+<body class="bg-amber-50 flex flex-col items-center justify-center min-h-screen font-sans p-4">
 
-<div class="container">
-    <button id="playBtn" class="audio-btn">
-        <span id="btnIcon">►</span>
-        <span id="btnText">प्ले ऑडियो</span>
-    </button>
-    
-    <div id="statusMessage"></div>
+    <!-- Category Tabs for Kids -->
+    <div class="flex flex-wrap gap-2 justify-center mb-6 max-w-md w-full">
+        <button onclick="switchCategory('twoLetter')" id="tab-twoLetter" class="category-tab px-4 py-2 bg-amber-400 text-amber-900 font-bold rounded-full shadow-md text-sm transition-all border-2 border-amber-500 cursor-pointer">२ अक्षर वाले</button>
+        <button onclick="switchCategory('threeLetter')" id="tab-threeLetter" class="category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer">३ अक्षर वाले</button>
+        <button onclick="switchCategory('matra')" id="tab-matra" class="category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer">मात्रा वाले शब्द</button>
+    </div>
 
-    <audio id="myAudio" src="audio.mp3" loop preload="auto"></audio>
+    <!-- Main Card Box -->
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center relative border-4 border-amber-200">
+        
+        <h1 class="text-xl font-black text-amber-600 tracking-wide mb-6">आओ हिंदी सीखें! 🌟</h1>
 
-    <div id="transcriptBox" class="transcript-box"></div>
-</div>
+        <!-- Word Display Area -->
+        <div class="bg-amber-100/50 py-8 rounded-2xl border-2 border-dashed border-amber-300 mb-6">
+            <div id="hindi-word" class="text-6xl font-black text-amber-700 tracking-wider mb-3">घर</div>
+            <div id="english-meaning" class="text-base text-slate-500 font-medium font-mono">Ghar (House)</div>
+        </div>
 
-<script>
-    const audio = document.getElementById('myAudio');
-    const playBtn = document.getElementById('playBtn');
-    const btnText = document.getElementById('btnText');
-    const btnIcon = document.getElementById('btnIcon');
-    const transcriptBox = document.getElementById('transcriptBox');
-    const statusMessage = document.getElementById('statusMessage');
+        <!-- Status Messaging Area -->
+        <div class="h-14 flex items-center justify-center mb-6">
+            <div id="status-listening" class="hidden flex flex-col items-center text-rose-500 font-bold text-lg">
+                <span class="animate-bounce">बोलो! (Speak now...)</span>
+                <span id="timer-text" class="text-xs font-mono text-slate-400 mt-1">Time left: 10.0s</span>
+            </div>
+            <div id="status-success" class="hidden text-emerald-500 flex items-center space-x-2 scale-110 transition-all duration-300">
+                <i class="fa-solid fa-circle-check text-3xl"></i>
+                <span class="text-lg font-black">ठीक है! 🎉</span>
+            </div>
+        </div>
 
-    // ऑडियो टाइमलाइन डेटा
-    const wordsTimeline = [
-        { word: "थी", time: 0.0 }, { word: "जब", time: 0.8 }, { word: "लोग", time: 1.3 },
-        { word: "मरने", time: 2.2 }, { word: "के", time: 2.7 }, { word: "करीब", time: 3.1 }, { word: "होते", time: 3.6 }, { word: "हैं,", time: 4.0 },
-        { word: "आखिरी", time: 4.4 }, { word: "सांसें", time: 5.0 }, { word: "लेते", time: 5.5 }, { word: "हैं।", time: 5.9 },
-        { word: "वो", time: 6.6 }, { word: "पछतावे", time: 7.0 }, { word: "जताते", time: 7.7 }, { word: "हैं,", time: 8.1 },
-        { word: "जैसे", time: 8.4 }, { word: "क्या", time: 8.8 }, { word: "करना", time: 9.1 }, { word: "चाहिए", time: 9.5 }, { word: "था,", time: 9.9 },
-        { word: "जिससे", time: 10.3 }, { word: "ठीक", time: 10.7 }, { word: "होता,", time: 11.1 },
-        { word: "जो", time: 11.5 }, { word: "उस", time: 11.7 }, { word: "वक्त", time: 11.9 }, { word: "उन्होंने", time: 12.2 }, { word: "नहीं", time: 12.5 }, { word: "किया।", time: 12.8 },
-        { word: "कि", time: 13.5 }, { word: "अगर", time: 13.9 }, { word: "मौत", time: 14.3 }, { word: "के", time: 14.7 }, { word: "वक्त", time: 15.0 },
-        { word: "तुम्हें", time: 15.4 }, { word: "पछतावा", time: 15.8 }, { word: "हो...", time: 16.7 },
-        { word: "तो", time: 17.6 }, { word: "जिंदगी", time: 18.2 }, { word: "गलत", time: 19.0 }, { word: "तरीके", time: 19.4 }, { word: "से", time: 19.7 }, { word: "जी।", time: 19.9 }
-    ];
+        <!-- Circular Countdown Mic Button Container -->
+        <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
+            <svg class="absolute inset-0 w-full h-full">
+                <circle cx="64" cy="64" r="54" stroke="#f1f5f9" stroke-width="8" fill="transparent" />
+                <circle id="countdown-circle" class="timer-ring" cx="64" cy="64" r="54" stroke="#10b981" stroke-width="8" fill="transparent" stroke-dasharray="339.29" stroke-dashoffset="0" stroke-linecap="round" />
+            </svg>
 
-    // शब्दों को स्क्रीन पर लोड करना
-    function generateWords() {
-        transcriptBox.innerHTML = '';
-        wordsTimeline.forEach((item, index) => {
-            const span = document.createElement('span');
-            span.innerText = item.word;
-            span.classList.add('word');
-            span.setAttribute('id', `word-${index}`);
-            transcriptBox.appendChild(span);
-        });
-    }
-    generateWords();
+            <button id="mic-btn" class="absolute w-24 h-24 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-4xl shadow-md transition-all transform active:scale-90 flex items-center justify-center cursor-pointer border-4 border-white z-10">
+                <i id="mic-icon" class="fa-solid fa-microphone"></i>
+            </button>
+        </div>
 
-    // प्ले/पॉज़ फंक्शनलिटी (त्रुटि जाँच के साथ)
-    playBtn.addEventListener('click', () => {
-        if (audio.paused) {
-            audio.play().then(() => {
-                statusMessage.style.display = "none";
-                playBtn.classList.add('playing');
-                btnText.innerText = "पॉज़ ऑडियो";
-                btnIcon.innerText = "║";
-            }).catch(error => {
-                console.error("Audio playback failed:", error);
-                statusMessage.style.display = "block";
-                statusMessage.innerText = "त्रुटि: ऑडियो फ़ाइल 'm.mp3' नहीं मिल सकी या लोड नहीं हो पाई।";
-            });
-        } else {
-            audio.pause();
-            playBtn.classList.remove('playing');
-            btnText.innerText = "प्ले ऑडियो";
-            btnIcon.innerText = "►";
-        }
-    });
+        <p id="transcript-preview" class="text-sm font-semibold text-slate-400 mt-6 h-4"></p>
 
-    // वर्ड-बाय-वर्ड रियल टाइम ट्रैकिंग
-    audio.addEventListener('timeupdate', () => {
-        const currentTime = audio.currentTime;
+        <!-- Retry/Skip Modal Pop Up Box -->
+        <div id="retry-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center border-4 border-rose-300">
+                <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid fa-face-frown"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800 mb-1">गलत जवाब!</h3>
+                <p id="modal-feedback" class="text-sm text-slate-500 mb-6">फिर से कोशिश करो!</p>
+                <div class="flex space-x-3">
+                    <button id="skip-btn" class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-colors cursor-pointer">
+                        Skip ⏭️
+                    </button>
+                    <button id="retry-btn" class="flex-1 py-3 px-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm transition-colors cursor-pointer shadow-md shadow-rose-100">
+                        Try Again 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        wordsTimeline.forEach((item, index) => {
-            const wordElement = document.getElementById(`word-${index}`);
-            if (!wordElement) return;
-            
-            const nextItem = wordsTimeline[index + 1];
-            const isCurrentWord = currentTime >= item.time && (!nextItem || currentTime < nextItem.time);
-            const isPassedWord = currentTime >= item.time;
+    </div>
 
-            if (isCurrentWord) {
-                wordElement.className = 'word active';
-            } else if (isPassedWord) {
-                wordElement.className = 'word passed';
-            } else {
-                wordElement.className = 'word';
+    <!-- Application Logic -->
+    <script>
+        const wordData = {
+            twoLetter: [
+                { hindi: "घर", english: "Ghar (House)", alternatives: ["घार", "कर", "घड़", "वर"] },
+                { hindi: "फल", english: "Phal (Fruit)", alternatives: ["फाल", "पल", "हल", "वल"] },
+                { hindi: "बस", english: "Bas (Bus)", alternatives: ["बास", "वश", "बज", "अस"] },
+                { hindi: "जल", english: "Jal (Water)", alternatives: ["जाल", "चल", "दल"] },
+                { hindi: "नल", english: "Nal (Tap)", alternatives: ["नाल", "मल", "नल"] }
+            ],
+            threeLetter: [
+                { hindi: "कमल", english: "Kamal (Lotus)", alternatives: ["कमाल", "कमड़", "कमन"] },
+                { hindi: "मगर", english: "Magar (Crocodile)", alternatives: ["मागर", "मगरमच्छ", "नगर"] },
+                { hindi: "बटन", english: "Batan (Button)", alternatives: ["बटान", "बटम", "मटन"] },
+                { hindi: "कलम", english: "Kalam (Pen)", alternatives: ["कलाम", "करम", "सनम"] },
+                { hindi: "सड़क", english: "Sadak (Road)", alternatives: ["सडक", "सारक", "सरक"] }
+            ],
+            matra: [
+                { hindi: "राजा", english: "Raja (King)", alternatives: ["राज", "राज़ा", "राधा"] },
+                { hindi: "किताब", english: "Kitaab (Book)", alternatives: ["कीताब", "किताबें", "गिताभ"] },
+                { hindi: "मछली", english: "Machhli (Fish)", alternatives: ["मछलीं", "मचली", "मजली"] },
+                { hindi: "गुलाब", english: "Gulaab (Rose)", alternatives: ["गुलाप", "गुलाब का फूल", "गुलाफ"] },
+                { hindi: "सूरज", english: "Sooraj (Sun)", alternatives: ["सूरज", "सुरज", "सूरत"] }
+            ]
+        };
+
+        let currentCategory = 'twoLetter';
+        let currentIndex = 0;
+        
+        // High Precision Timer Configuration (Runs every 100ms for smooth circle draining)
+        let countdownTimer = null;
+        let millisecondsLeft = 10000; 
+        const totalDurationMS = 10000;
+        const circleRadius = 54;
+        const circumference = 2 * Math.PI * circleRadius;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let localTranscriptStore = ""; // Tracks recorded speech phrases
+
+        const wordEl = document.getElementById('hindi-word');
+        const meaningEl = document.getElementById('english-meaning');
+        const micBtn = document.getElementById('mic-btn');
+        const micIcon = document.getElementById('mic-icon');
+        const statusListening = document.getElementById('status-listening');
+        const statusSuccess = document.getElementById('status-success');
+        const timerText = document.getElementById('timer-text');
+        const countdownCircle = document.getElementById('countdown-circle');
+        const transcriptPreview = document.getElementById('transcript-preview');
+        const retryModal = document.getElementById('retry-modal');
+        const retryBtn = document.getElementById('retry-btn');
+        const skipBtn = document.getElementById('skip-btn');
+
+        function speakFeedback(textMessage) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(textMessage);
+                utterance.lang = 'hi-IN';
+                utterance.rate = 0.95; 
+                window.speechSynthesis.speak(utterance);
             }
-        });
-    });
-
-    // लूप रीसेट होने पर एनिमेशन साफ़ करना
-    audio.addEventListener('seeked', () => {
-        if (audio.currentTime < 1) {
-            wordsTimeline.forEach((_, index) => {
-                const wordElement = document.getElementById(`word-${index}`);
-                if (wordElement) wordElement.className = 'word';
-            });
         }
-    });
 
-    // ऑडियो लोड एरर हैंडलर
-    audio.addEventListener('error', () => {
-        statusMessage.style.display = "block";
-        statusMessage.innerText = "Error: 'm.mp3' फ़ाइल लोड करने में विफल। कृपया फ़ाइल नाम और पाथ की जाँच करें।";
-    });
-</script>
+        function updateWord() {
+            const currentList = wordData[currentCategory];
+            wordEl.textContent = currentList[currentIndex].hindi;
+            meaningEl.textContent = currentList[currentIndex].english;
+            transcriptPreview.textContent = "";
+            localTranscriptStore = "";
+            stopTimerRing();
+            resetStatus();
+        }
 
+        function resetStatus() {
+            statusListening.classList.add('hidden');
+            statusSuccess.classList.add('hidden');
+            micBtn.className = "absolute w-24 h-24 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-4xl shadow-md transition-all transform active:scale-90 flex items-center justify-center cursor-pointer border-4 border-white z-10";
+            micIcon.className = "fa-solid fa-microphone";
+        }
+
+        function startTimerRing() {
+            clearInterval(countdownTimer);
+            millisecondsLeft = totalDurationMS;
+            timerText.textContent = `Time left: ${(millisecondsLeft / 1000).toFixed(1)}s`;
+            countdownCircle.style.strokeDashoffset = 0;
+            countdownCircle.style.stroke = "#10b981";
+
+            countdownTimer = setInterval(() => {
+                millisecondsLeft -= 100;
+                timerText.textContent = `Time left: ${Math.max(0, millisecondsLeft / 1000).toFixed(1)}s`;
+
+                const progressPercentage = millisecondsLeft / totalDurationMS;
+                const offset = circumference * (1 - progressPercentage);
+                countdownCircle.style.strokeDashoffset = offset;
+
+                if (millisecondsLeft <= 5000 && millisecondsLeft > 2500) {
+                    countdownCircle.style.stroke = "#f59e0b"; // Orange
+                } else if (millisecondsLeft <= 2500) {
+                    countdownCircle.style.stroke = "#ef4444"; // Red
+                }
+
+                if (millisecondsLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    // When time runs out completely, look at whatever speech was collected
+                    evaluateSpeechFinal();
+                }
+            }, 100);
+        }
+
+        function stopTimerRing() {
+            clearInterval(countdownTimer);
+            countdownCircle.style.strokeDashoffset = 0;
+            countdownCircle.style.stroke = "#10b981";
+        }
+
+        function evaluateSpeechFinal() {
+            // Shut off microphone recording first
+            if (recognition) {
+                recognition.onresult = null;
+                recognition.onerror = null;
+                recognition.onend = null;
+                try { recognition.stop(); } catch(e){}
+            }
+            stopTimerRing();
+            resetStatus();
+
+            const targetObj = wordData[currentCategory][currentIndex];
+            const targetWord = targetObj.hindi;
+            
+            const cleanSpoken = localTranscriptStore.trim().replace(/[।.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
+
+            if (!cleanSpoken) {
+                handleFailure("आवाज़ रिकॉर्ड नहीं हुई (No sound detected)");
+                return;
+            }
+
+            // Check if what they said matches the target or alternatives
+            let isCorrect = cleanSpoken === targetWord || 
+                            cleanSpoken.includes(targetWord) || 
+                            targetObj.alternatives.some(alt => cleanSpoken.includes(alt));
+
+            if (isCorrect) {
+                statusSuccess.classList.remove('hidden');
+                speakFeedback("ठीक है"); 
+                setTimeout(() => {
+                    const currentList = wordData[currentCategory];
+                    currentIndex = (currentIndex + 1) % currentList.length;
+                    updateWord();
+                }, 1800);
+            } else {
+                handleFailure(null, cleanSpoken);
+            }
+        }
+
+        function handleFailure(reasonText, spokenText = "") {
+            speakFeedback("गलत है फिर से कोशिश करें");
+            const targetWord = wordData[currentCategory][currentIndex].hindi;
+            const textToDisplay = spokenText ? `आपने बोला: <span class="text-rose-500 font-bold">"${spokenText}"</span>` : `<span class="text-rose-500 font-semibold">${reasonText}</span>`;
+            
+            document.getElementById('modal-feedback').innerHTML = `${textToDisplay}<br>सही शब्द: <span class="text-amber-600 font-bold">"${targetWord}"</span>`;
+            retryModal.classList.remove('hidden');
+        }
+
+        function switchCategory(category) {
+            currentCategory = category;
+            currentIndex = 0;
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.className = "category-tab px-4 py-2 bg-white text-slate-600 font-bold rounded-full shadow-md text-sm transition-all border-2 border-transparent cursor-pointer";
+            });
+            document.getElementById(`tab-${category}`).className = "category-tab px-4 py-2 bg-amber-400 text-amber-900 font-bold rounded-full shadow-md text-sm transition-all border-2 border-amber-500 cursor-pointer";
+            updateWord();
+        }
+
+        micBtn.addEventListener('click', () => {
+            if (!SpeechRecognition) return;
+            resetStatus();
+            
+            if (recognition) {
+                try { recognition.abort(); } catch(e){}
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.maxAlternatives = 3; 
+            
+            // CRITICAL ENGINE FIXES FOR KIDS:
+            recognition.continuous = true;     // Forces mic to stay open even if kid pauses
+            recognition.interimResults = false; // Only finalize clear words
+
+            statusListening.classList.remove('hidden');
+            micBtn.className = "absolute w-24 h-24 bg-slate-800 text-white rounded-full text-4xl shadow-md flex items-center justify-center cursor-pointer border-4 border-white z-10";
+            micIcon.className = "fa-solid fa-face-listening animate-pulse";
+            
+            startTimerRing();
+
+            // Collect text as the child speaks
+            recognition.onresult = function(event) {
+                let currentResultIndex = event.resultIndex;
+                let transcriptSegment = event.results[currentResultIndex][0].transcript;
+                
+                // Store everything they managed to say within the 10 seconds
+                localTranscriptStore = transcriptSegment;
+                transcriptPreview.textContent = `सुन रहे हैं... "${localTranscriptStore.trim()}"`;
+
+                // If they say the target word correctly, we don't make them wait for the timer to finish
+                const targetObj = wordData[currentCategory][currentIndex];
+                const targetWord = targetObj.hindi;
+                const cleanSegment = transcriptSegment.trim().replace(/[।.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
+
+                if (cleanSegment === targetWord || targetObj.alternatives.includes(cleanSegment)) {
+                    clearInterval(countdownTimer);
+                    evaluateSpeechFinal();
+                }
+            };
+
+            // If the browser ends the mic early automatically, calculate based on what was heard
+            recognition.onend = function() {
+                if (millisecondsLeft > 500 && localTranscriptStore !== "") {
+                    clearInterval(countdownTimer);
+                    evaluateSpeechFinal();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                // Ignore empty pauses, handle hard hardware disconnect blocks
+                if (event.error === 'not-allowed') {
+                    clearInterval(countdownTimer);
+                    handleFailure("Mic Permission Blocked");
+                }
+            };
+
+            recognition.start();
+        });
+
+        retryBtn.addEventListener('click', () => {
+            retryModal.classList.add('hidden');
+            setTimeout(() => { micBtn.click(); }, 250);
+        });
+
+        skipBtn.addEventListener('click', () => {
+            retryModal.classList.add('hidden');
+            const currentList = wordData[currentCategory];
+            currentIndex = (currentIndex + 1) % currentList.length;
+            updateWord();
+        });
+
+        updateWord();
+    </script>
 </body>
 </html>
