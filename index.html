@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Pronunciation Checker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Hindi Pronunciation Trainer</h1>
+
+        <!-- Display Area -->
+        <div id="wordDisplay" class="word-box">
+            Click the button to start.
+        </div>
+
+        <!-- Action Button -->
+        <button id="recordButton">Record Pronunciation</button>
+
+        <!-- Feedback Area -->
+        <div id="feedback" class="feedback-box">
+            <!-- Results will appear here -->
+        </div>
+
+        <!-- Navigation/Error Modal (Hidden by default) -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <p id="modalMessage"></p>
+                <button id="retryButton">Try Again</button>
+                <button id="skipButton">Skip</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
