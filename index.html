@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ऑडियो और हिंदी ट्रांसक्रिप्ट सिंक</title>
+    <title>Premium Karaoke Audio Sync</title>
     <style>
+        :root {
+            --bg-color: #0a0a0c;
+            --card-bg: rgba(20, 20, 27, 0.7);
+            --accent-color: #00ffcc;
+            --text-muted: #4a4a5a;
+        }
+
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #0f0f12;
+            font-family: 'SF Pro Display', -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #1a1525 0%, var(--bg-color) 80%);
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -16,132 +24,191 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            overflow: hidden;
         }
 
+        /* प्रीमियम ग्लासमोर्फिज़्म कंटेनर */
         .container {
             text-align: center;
-            max-width: 650px;
-            background: #1a1a24;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            border: 1px solid #2e2e3f;
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* प्ले/पॉज़ बटन की स्टाइल */
+        /* न्यूमॉर्फिक / प्रीमियम नियॉन बटन */
         .audio-btn {
-            background-color: #e50914;
+            background: transparent;
             color: white;
-            border: none;
-            padding: 16px 36px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 100px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
-            margin-bottom: 35px;
-            text-transform: uppercase;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .audio-btn:hover {
-            background-color: #ff1e2b;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6);
         }
 
-        .audio-btn:active {
-            transform: translateY(1px);
+        .audio-btn.playing {
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+        
+        .audio-btn.playing:hover {
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.2);
         }
 
-        /* ट्रांसक्रिप्ट बॉक्स */
+        /* वर्ड कंटेनर बॉक्स */
         .transcript-box {
-            min-height: 140px;
+            min-height: 160px;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            padding: 10px 20px;
+            gap: 10px 14px;
+            margin-top: 40px;
+            padding: 10px;
         }
 
-        .subtitle-text {
-            font-size: 26px;
-            line-height: 1.6;
-            color: #8888a0;
-            transition: color 0.2s ease, transform 0.2s ease;
-            font-weight: 500;
+        /* हर एक शब्द की बेस स्टाइल */
+        .word {
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text-muted);
+            opacity: 0.15;
+            transform: scale(0.9) translateY(5px);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-block;
         }
 
-        /* जब टेक्स्ट एक्टिव (स्क्रीन पर बोलने का समय) हो */
-        .active-text {
-            color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
-            transform: scale(1.02);
+        /* जब शब्द बोला जा रहा हो (Smooth Highlight Animation) */
+        .word.active {
+            opacity: 1;
+            color: #ffffff;
+            transform: scale(1.1) translateY(0);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        /* जो शब्द बोले जा चुके हैं */
+        .word.passed {
+            opacity: 0.7;
+            color: var(--accent-color);
+            transform: scale(1) translateY(0);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- प्ले बटन -->
-    <button id="playBtn" class="audio-btn">► प्ले ऑडियो</button>
+    <button id="playBtn" class="audio-btn">
+        <svg id="btnIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <span id="btnText">प्ले ऑडियो</span>
+    </button>
 
-    <!-- ऑडियो एलिमेंट (loop एट्रिब्यूट के साथ ताकि लगातार चलता रहे) -->
-    <audio id="myAudio" src="audio.mp3" loop></audio>
+    <audio id="myAudio" src="m.mp3" loop></audio>
 
-    <!-- स्वचालित रूप से बदलने वाला ट्रांसक्रिप्ट एरिया -->
-    <div class="transcript-box">
-        <p id="transcript" class="subtitle-text">सुनने के लिए ऊपर दिए गए बटन पर क्लिक करें...</p>
-    </div>
+    <div id="transcriptBox" class="transcript-box">
+        </div>
 </div>
 
 <script>
     const audio = document.getElementById('myAudio');
     const playBtn = document.getElementById('playBtn');
-    const transcriptText = document.getElementById('transcript');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const transcriptBox = document.getElementById('transcriptBox');
 
-    // वीडियो का सटीक समय (सेकंड्स में) और डायलॉग मैपिंग
-    const transcriptData = [
-        { start: 0.0, end: 6.0, text: "थी जब लोग मरने के करीब होते हैं, आखिरी सांसें लेते हैं।" },
-        { start: 6.0, end: 12.0, text: "वो पछतावे जताते हैं, जैसे क्या करना चाहिए था, जिससे ठीक होता, जो उस वक्त उन्होंने नहीं किया।" },
-        { start: 12.0, end: 20.0, text: "कि अगर मौत के वक्त तुम्हें पछतावा हो... तो जिंदगी गलत तरीके से जी।" }
+    // ऑडियो टाइमिंग के हिसाब से हर एक शब्द का सटीक मैप (Seconds)
+    const wordsTimeline = [
+        { word: "थी", time: 0.0 }, { word: "जब", time: 0.8 }, { word: "लोग", time: 1.3 },
+        { word: "मरने", time: 2.2 }, { word: "के", time: 2.7 }, { word: "करीब", time: 3.1 }, { word: "होते", time: 3.6 }, { word: "हैं,", time: 4.0 },
+        { word: "आखिरी", time: 4.4 }, { word: "सांसें", time: 5.0 }, { word: "लेते", time: 5.5 }, { word: "हैं।", time: 5.9 },
+        
+        { word: "वो", time: 6.6 }, { word: "पछतावे", time: 7.0 }, { word: "जताते", time: 7.7 }, { word: "हैं,", time: 8.1 },
+        { word: "जैसे", time: 8.4 }, { word: "क्या", time: 8.8 }, { word: "करना", time: 9.1 }, { word: "चाहिए", time: 9.5 }, { word: "था,", time: 9.9 },
+        { word: "जिससे", time: 10.3 }, { word: "ठीक", time: 10.7 }, { word: "होता,", time: 11.1 },
+        { word: "जो", time: 11.5 }, { word: "उस", time: 11.7 }, { word: "वक्त", time: 11.9 }, { word: "उन्होंने", time: 12.2 }, { word: "नहीं", time: 12.5 }, { word: "किया।", time: 12.8 },
+        
+        { word: "कि", time: 13.5 }, { word: "अगर", time: 13.9 }, { word: "मौत", time: 14.3 }, { word: "के", time: 14.7 }, { word: "वक्त", time: 15.0 },
+        { word: "तुम्हें", time: 15.4 }, { word: "पछतावा", time: 15.8 }, { word: "हो...", time: 16.7 },
+        { word: "तो", time: 17.6 }, { word: "जिंदगी", time: 18.2 }, { word: "गलत", time: 19.0 }, { word: "तरीके", time: 19.4 }, { word: "से", time: 19.7 }, { word: "जी।", time: 19.9 }
     ];
 
-    // बटन क्लिक करने पर प्ले और पॉज़ कंट्रोल
+    // DOM में शब्दों को इनिशियलाइज़ करना
+    function generateWords() {
+        transcriptBox.innerHTML = '';
+        wordsTimeline.forEach((item, index) => {
+            const span = document.createElement('span');
+            span.innerText = item.word;
+            span.classList.add('word');
+            span.setAttribute('id', `word-${index}`);
+            transcriptBox.appendChild(span);
+        });
+    }
+
+    generateWords();
+
+    // प्ले/पॉज़ टॉगल
     playBtn.addEventListener('click', () => {
         if (audio.paused) {
             audio.play();
-            playBtn.innerText = "║ पॉज़ ऑडियो";
-            playBtn.style.backgroundColor = "#4b4b5e";
-            playBtn.style.boxShadow = "none";
+            playBtn.classList.add('playing');
+            btnText.innerText = "पॉज़ ऑडियो";
+            btnIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause SVG Icon
         } else {
             audio.pause();
-            playBtn.innerText = "► प्ले ऑडियो";
-            playBtn.style.backgroundColor = "#e50914";
-            playBtn.style.boxShadow = "0 4px 15px rgba(229, 9, 20, 0.4)";
+            playBtn.classList.remove('playing');
+            btnText.innerText = "प्ले ऑडियो";
+            btnIcon.innerHTML = '<path d="M8 5v14l11-7z"/>'; // Play SVG Icon
         }
     });
 
-    // ऑडियो के समय के साथ टेक्स्ट को सिंक करना
+    // रियल-टाइम वर्ड-बाय-वर्ड एनीमेशन सिंकिंग
     audio.addEventListener('timeupdate', () => {
         const currentTime = audio.currentTime;
-        let textToShow = "";
-        let found = false;
 
-        for (let i = 0; i < transcriptData.length; i++) {
-            if (currentTime >= transcriptData[i].start && currentTime < transcriptData[i].end) {
-                textToShow = transcriptData[i].text;
-                found = true;
-                break;
+        wordsTimeline.forEach((item, index) => {
+            const wordElement = document.getElementById(`word-${index}`);
+            
+            // यह चेक करने के लिए कि क्या यह शब्द वर्तमान में बोला जा रहा है
+            const nextItem = wordsTimeline[index + 1];
+            const isCurrentWord = currentTime >= item.time && (!nextItem || currentTime < nextItem.time);
+            const isPassedWord = currentTime >= item.time;
+
+            if (isCurrentWord) {
+                wordElement.className = 'word active';
+            } else if (isPassedWord) {
+                wordElement.className = 'word passed';
+            } else {
+                wordElement.className = 'word';
             }
-        }
+        });
+    });
 
-        if (found) {
-            transcriptText.innerText = textToShow;
-            transcriptText.classList.add('active-text');
-        } else {
-            // यदि डायलॉग के बीच में कोई खाली स्पेस हो
-            transcriptText.classList.remove('active-text');
+    // जब ऑडियो लूप होकर दोबारा शुरू हो, तो एनीमेशन रीसेट करें
+    audio.addEventListener('seeked', () => {
+        if(audio.currentTime < 1) {
+            wordsTimeline.forEach((_, index) => {
+                const wordElement = document.getElementById(`word-${index}`);
+                if(wordElement) wordElement.className = 'word';
+            });
         }
     });
 </script>
