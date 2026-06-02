@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ऑडियो और हिंदी ट्रांसक्रिप्ट सिंक</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0f0f12;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 650px;
+            background: #1a1a24;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid #2e2e3f;
+        }
+
+        /* प्ले/पॉज़ बटन की स्टाइल */
+        .audio-btn {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 16px 36px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+            margin-bottom: 35px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .audio-btn:hover {
+            background-color: #ff1e2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6);
+        }
+
+        .audio-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* ट्रांसक्रिप्ट बॉक्स */
+        .transcript-box {
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+        }
+
+        .subtitle-text {
+            font-size: 26px;
+            line-height: 1.6;
+            color: #8888a0;
+            transition: color 0.2s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        /* जब टेक्स्ट एक्टिव (स्क्रीन पर बोलने का समय) हो */
+        .active-text {
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- प्ले बटन -->
+    <button id="playBtn" class="audio-btn">► प्ले ऑडियो</button>
+
+    <!-- ऑडियो एलिमेंट (loop एट्रिब्यूट के साथ ताकि लगातार चलता रहे) -->
+    <audio id="myAudio" src="audio.mp3" loop></audio>
+
+    <!-- स्वचालित रूप से बदलने वाला ट्रांसक्रिप्ट एरिया -->
+    <div class="transcript-box">
+        <p id="transcript" class="subtitle-text">सुनने के लिए ऊपर दिए गए बटन पर क्लिक करें...</p>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio');
+    const playBtn = document.getElementById('playBtn');
+    const transcriptText = document.getElementById('transcript');
+
+    // वीडियो का सटीक समय (सेकंड्स में) और डायलॉग मैपिंग
+    const transcriptData = [
+        { start: 0.0, end: 6.0, text: "थी जब लोग मरने के करीब होते हैं, आखिरी सांसें लेते हैं।" },
+        { start: 6.0, end: 12.0, text: "वो पछतावे जताते हैं, जैसे क्या करना चाहिए था, जिससे ठीक होता, जो उस वक्त उन्होंने नहीं किया।" },
+        { start: 12.0, end: 20.0, text: "कि अगर मौत के वक्त तुम्हें पछतावा हो... तो जिंदगी गलत तरीके से जी।" }
+    ];
+
+    // बटन क्लिक करने पर प्ले और पॉज़ कंट्रोल
+    playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play();
+            playBtn.innerText = "║ पॉज़ ऑडियो";
+            playBtn.style.backgroundColor = "#4b4b5e";
+            playBtn.style.boxShadow = "none";
+        } else {
+            audio.pause();
+            playBtn.innerText = "► प्ले ऑडियो";
+            playBtn.style.backgroundColor = "#e50914";
+            playBtn.style.boxShadow = "0 4px 15px rgba(229, 9, 20, 0.4)";
+        }
+    });
+
+    // ऑडियो के समय के साथ टेक्स्ट को सिंक करना
+    audio.addEventListener('timeupdate', () => {
+        const currentTime = audio.currentTime;
+        let textToShow = "";
+        let found = false;
+
+        for (let i = 0; i < transcriptData.length; i++) {
+            if (currentTime >= transcriptData[i].start && currentTime < transcriptData[i].end) {
+                textToShow = transcriptData[i].text;
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            transcriptText.innerText = textToShow;
+            transcriptText.classList.add('active-text');
+        } else {
+            // यदि डायलॉग के बीच में कोई खाली स्पेस हो
+            transcriptText.classList.remove('active-text');
+        }
+    });
+</script>
+
+</body>
+</html>
