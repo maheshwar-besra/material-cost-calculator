@@ -7,25 +7,24 @@
     <!-- Tailwind CSS for modern fluid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for readable Devanagari script text -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght=400;700&family=Poppins:wght=400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif; }
-        /* Lock screen viewport completely to prevent accidental rubber-band pulling */
+        /* Lock screen viewport completely to prevent accidental mobile pull-scrolling */
         html, body { position: fixed; overflow: hidden; width: 100%; height: 100%; }
     </style>
 </head>
-<!-- FIXED: Changed h-screen to h-[100dvh] and added pb-6 to push the layout up from mobile system bars -->
 <body class="bg-amber-50 h-[100dvh] w-screen flex flex-col items-center justify-between p-4 pb-6 select-none overflow-hidden">
 
-    <!-- Header Area -->
+    <!-- Header Area (Stays Fixed at Top) -->
     <header class="w-full max-w-md flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border-2 border-amber-200 shrink-0">
         <h1 class="text-lg font-extrabold text-amber-600 tracking-wide">✨ बाल वाणी (Bal Vani)</h1>
         <div class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs">
-            Progress: <span id="progress-text">1 / 4</span>
+            Progress: <span id="progress-text">1 / 25</span>
         </div>
     </header>
 
-    <!-- Category Tabs -->
+    <!-- Category Tabs (Stays Fixed at Top Sublevel) -->
     <div class="w-full max-w-md flex gap-2 mt-2 shrink-0">
         <button data-category="twoLetter" class="tab-btn flex-1 bg-amber-400 text-amber-950 font-bold py-2 rounded-xl shadow-sm text-xs transition-all border-2 border-amber-500">
             २ अक्षर
@@ -38,7 +37,7 @@
         </button>
     </div>
 
-    <!-- Main Card Body Layout (Flexible auto-shrinking area) -->
+    <!-- Main Card Body Layout (Fits remaining space safely without overflow scrolling) -->
     <main class="w-full max-w-md bg-white flex-1 my-3 rounded-3xl shadow-xl border-4 border-amber-400 p-4 flex flex-col items-center justify-between relative overflow-hidden min-h-0">
         
         <!-- Success Screen Layer -->
@@ -48,7 +47,7 @@
             <p class="text-lg mt-1 font-medium">Perfect Pronunciation!</p>
         </div>
 
-        <!-- Word Content Display -->
+        <!-- Word Content Display (Flexible layout handling) -->
         <div class="flex flex-col items-center justify-center flex-1 min-h-0 w-full py-1">
             <div id="word-emoji" class="text-6xl sm:text-7xl my-1 drop-shadow-md transition-transform duration-300 hover:scale-110 cursor-pointer">🏠</div>
             <h2 id="word-hindi" class="text-4xl sm:text-5xl font-bold text-slate-800 tracking-wide mb-0.5">घर</h2>
@@ -63,66 +62,117 @@
                 🔊 Listen to Word
             </button>
 
-            <!-- Microphone Tracking Wheel -->
+            <!-- Upscaled Microphone Unit with Circular Countdown Progress Bar -->
             <div class="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center my-1">
                 
+                <!-- SVG Round Timer Track Outer Ring -->
                 <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="44" stroke="#f1f5f9" stroke-width="6" fill="transparent" />
                     <circle id="progress-circle" cx="50" cy="50" r="44" stroke="#10b981" stroke-width="6" fill="transparent" 
                             stroke-dasharray="276.46" stroke-dashoffset="276.46" stroke-linecap="round" class="transition-all duration-75 ease-linear" />
                 </svg>
 
+                <!-- Center Microphone Interaction Button Target -->
                 <button id="btn-mic" class="w-22 h-22 sm:w-26 sm:h-26 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 border-4 border-white ring-4 ring-rose-100 z-10">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 sm:h-11 sm:w-11 fill-current" viewBox="0 0 24 24">
                         <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
                     </svg>
                 </button>
                 
+                <!-- Background Pulse Ripple Accent Ring -->
                 <div id="mic-ripple" class="hidden absolute inset-4 bg-rose-500 rounded-full opacity-30 animate-ping"></div>
             </div>
 
-            <!-- Status Output Screen -->
+            <!-- Context Status Messaging Box Output Screen -->
             <p id="status-msg" class="text-xs font-semibold text-slate-500 tracking-wide bg-slate-100 px-4 py-2 rounded-full h-10 flex items-center text-center justify-center w-full overflow-hidden text-ellipsis whitespace-nowrap">
                 Tap the microphone and say the word!
             </p>
         </div>
     </main>
 
-    <!-- Structural Navigation Footer (LIFTED OUT OF OVERLAP ZONE) -->
+    <!-- Structural Navigation Footer (Locked safely to bottom panel grid layout) -->
     <footer class="w-full max-w-md flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border-2 border-amber-100 shrink-0">
         <button id="btn-prev" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-2.5 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-40" disabled>Previous</button>
         <button id="btn-next" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold px-6 py-2.5 rounded-xl text-sm transition-all active:scale-95">Next ➜</button>
     </footer>
 
-    <!-- INTERACTIVE APPLICATION LOGIC -->
+    <!-- INTERACTIVE GAME LOGIC CONTROLLER -->
     <script>
+        // Full Categorized Database Layout Configuration (57 Total Words)
         const wordDatabase = {
             twoLetter: [
                 { hindi: "घर", phonetic: "Ghar", english: "House", emoji: "🏠", matchRegex: /घर|कर|पर|धर/ },
+                { hindi: "नल", phonetic: "Nal", english: "Tap", emoji: "🚰", matchRegex: /नल|मल|चल|जल/ },
+                { hindi: "जल", phonetic: "Jal", english: "Water", emoji: "💧", matchRegex: /जल|चल|नल|कल/ },
                 { hindi: "फल", phonetic: "Phal", english: "Fruit", emoji: "🍎", matchRegex: /फल|पल|चल|हल/ },
                 { hindi: "बस", phonetic: "Bas", english: "Bus", emoji: "🚌", matchRegex: /बस|दस|रस|कस/ },
-                { hindi: "नल", phonetic: "Nal", english: "Tap", emoji: "🚰", matchRegex: /नल|मल|चल|जल/ }
+                { hindi: "छत", phonetic: "Chhat", english: "Roof", emoji: "🏠", matchRegex: /छत|मत|खत/ },
+                { hindi: "खत", phonetic: "Khat", english: "Letter", emoji: "✉️", matchRegex: /खत|मत|छत|कत/ },
+                { hindi: "रथ", phonetic: "Rath", english: "Chariot", emoji: "🛕", matchRegex: /रथ|पथ|मथ/ },
+                { hindi: "टब", phonetic: "Tab", english: "Tub", emoji: "🛁", matchRegex: /टब|सब|कब/ },
+                { hindi: "जग", phonetic: "Jag", english: "Jug", emoji: "🫙", matchRegex: /जग|मग|थग/ },
+                { hindi: "वन", phonetic: "Van", english: "Forest", emoji: "🌳", matchRegex: /वन|मन|बन/ },
+                { hindi: "मन", phonetic: "Man", english: "Mind", emoji: "❤️", matchRegex: /मन|तन|धन/ },
+                { hindi: "तन", phonetic: "Tan", english: "Body", emoji: "🧍", matchRegex: /तन|मन|धन/ },
+                { hindi: "धन", phonetic: "Dhan", english: "Money", emoji: "💰", matchRegex: /धन|मन|तन/ },
+                { hindi: "सच", phonetic: "Sach", english: "Truth", emoji: "🗣️", matchRegex: /सच|मच|कच/ },
+                { hindi: "कब", phonetic: "Kab", english: "When", emoji: "📅", matchRegex: /कब|तब|जब|सब/ },
+                { hindi: "तब", phonetic: "Tab", english: "Then", emoji: "🕒", matchRegex: /तब|कब|जब|सब/ },
+                { hindi: "जब", phonetic: "Jab", english: "When", emoji: "⏳", matchRegex: /जब|कब|तब|सब/ },
+                { hindi: "सब", phonetic: "Sab", english: "All", emoji: "👥", matchRegex: /सब|कब|तब|जब/ },
+                { hindi: "डर", phonetic: "Dar", english: "Fear", emoji: "😨", matchRegex: /डर|पर|कर|घर/ },
+                { hindi: "पर", phonetic: "Par", english: "Wings", emoji: "🕊️", matchRegex: /पर|डर|कर|घर/ },
+                { hindi: "कर", phonetic: "Kar", english: "Do", emoji: "🖐️", matchRegex: /कर|पर|डर|घर/ },
+                { hindi: "चल", phonetic: "Chal", english: "Walk", emoji: "🚶", matchRegex: /चल|पल|हल|नल/ },
+                { hindi: "पल", phonetic: "Pal", english: "Moment", emoji: "⏱️", matchRegex: /पल|चल|हल|फल/ },
+                { hindi: "हल", phonetic: "Hal", english: "Plow", emoji: "🚜", matchRegex: /हल|चल|पल|फल/ }
             ],
             threeLetter: [
-                { hindi: "कमल", phonetic: "Kamal", english: "Lotus", emoji: "🪷", matchRegex: /कमल|कमर|कमाल/ },
-                { hindi: "मटर", phonetic: "Matar", english: "Peas", emoji: "🫛", matchRegex: /मटर|मदर|गटर|शटर/ },
-                { hindi: "बटन", phonetic: "Batan", english: "Button", emoji: "🔘", matchRegex: /बटन|मटन|बतन/ },
-                { hindi: "मगर", phonetic: "Magar", english: "Crocodile", emoji: "🐊", matchRegex: /मगर|नगर|अगर/ }
+                { hindi: "कमल", phonetic: "Kamal", english: "Lotus", emoji: "🪷", matchRegex: /कमल|कमाल/ },
+                { hindi: "कलश", phonetic: "Kalash", english: "Urn", emoji: "🏺", matchRegex: /कलश|कलस/ },
+                { hindi: "गगन", phonetic: "Gagan", english: "Sky", emoji: "☁️", matchRegex: /गगन|मगन/ },
+                { hindi: "मदन", phonetic: "Madan", english: "Madan", emoji: "👦", matchRegex: /मदन|बदन/ },
+                { hindi: "पवन", phonetic: "Pawan", english: "Wind", emoji: "💨", matchRegex: /पवन|भवन/ },
+                { hindi: "नमक", phonetic: "Namak", english: "Salt", emoji: "🧂", matchRegex: /नमक|चमक/ },
+                { hindi: "शहर", phonetic: "Shahar", english: "City", emoji: "🏙️", matchRegex: /शहर|सहर|नहर/ },
+                { hindi: "नहर", phonetic: "Nahar", english: "Canal", emoji: "🌊", matchRegex: /नहर|शहर|सहर/ },
+                { hindi: "सड़क", phonetic: "Sadak", english: "Road", emoji: "🛣️", matchRegex: /सड़क|सडक/ },
+                { hindi: "बटन", phonetic: "Batan", english: "Button", emoji: "🔘", matchRegex: /बटन|मटन/ }
             ],
             matraWords: [
-                { hindi: "आम", phonetic: "Aam", english: "Mango", emoji: "🥭", matchRegex: /आम|काम|नाम|शाम/ },
-                { hindi: "किताब", phonetic: "Kitaab", english: "Book", emoji: "📖", matchRegex: /किताब|केताब|कताब/ },
-                { hindi: "चूहा", phonetic: "Chooha", english: "Mouse", emoji: "🐭", matchRegex: /चूहा|चुआ|चुहा/ },
-                { hindi: "शेर", phonetic: "Sher", english: "Lion", emoji: "🦁", matchRegex: /शेर|सेर|सैर/ }
+                { hindi: "आम", phonetic: "Aam", english: "Mango", emoji: "🥭", matchRegex: /आम|काम|नाम/ },
+                { hindi: "काम", phonetic: "Kaam", english: "Work", emoji: "💼", matchRegex: /काम|आम|नाम/ },
+                { hindi: "नाम", phonetic: "Naam", english: "Name", emoji: "🏷️", matchRegex: /नाम|आम|काम/ },
+                { hindi: "दाम", phonetic: "Daam", english: "Price", emoji: "🪙", matchRegex: /दाम|काम|नाम/ },
+                { hindi: "रात", phonetic: "Raat", english: "Night", emoji: "🌙", matchRegex: /रात|बात/ },
+                { hindi: "हाथ", phonetic: "Haath", english: "Hand", emoji: "✋", matchRegex: /हाथ|सात/ },
+                { hindi: "बाल", phonetic: "Baal", english: "Hair", emoji: "💇", matchRegex: /बाल|चाल/ },
+                { hindi: "दिन", phonetic: "Din", english: "Day", emoji: "☀️", matchRegex: /दिन|पिन/ },
+                { hindi: "मिल", phonetic: "Mil", english: "Meet", emoji: "🤝", matchRegex: /मिल|दिल/ },
+                { hindi: "सिर", phonetic: "Sir", english: "Head", emoji: "🧑‍🦱", matchRegex: /सिर|शिर/ },
+                { hindi: "नदी", phonetic: "Nadi", english: "River", emoji: "🏞️", matchRegex: /नदी/ },
+                { hindi: "चील", phonetic: "Cheel", english: "Eagle", emoji: "🦅", matchRegex: /चील|चिल/ },
+                { hindi: "तीर", phonetic: "Teer", english: "Arrow", emoji: "🏹", matchRegex: /तीर/ },
+                { hindi: "परी", phonetic: "Pari", english: "Fairy", emoji: "🧚", matchRegex: /परी/ },
+                { hindi: "खीर", phonetic: "Kheer", english: "Pudding", emoji: "🥣", matchRegex: /खीर/ },
+                { hindi: "पुल", phonetic: "Pul", english: "Bridge", emoji: "🌉", matchRegex: /पुल/ },
+                { hindi: "सुन", phonetic: "Sun", english: "Listen", emoji: "👂", matchRegex: /सुन|धुन/ },
+                { hindi: "गुड़", phonetic: "Gud", english: "Jaggery", emoji: "🟫", matchRegex: /गुड़|गुड/ },
+                { hindi: "पशु", phonetic: "Pashu", english: "Animal", emoji: "🐕", matchRegex: /पशु/ },
+                { hindi: "फूल", phonetic: "Phool", english: "Flower", emoji: "🌸", matchRegex: /फूल|फुल/ },
+                { hindi: "भालू", phonetic: "Bhaloo", english: "Bear", emoji: "🐻", matchRegex: /भालू|भालु/ },
+                { hindi: "आलू", phonetic: "Aloo", english: "Potato", emoji: "🥔", matchRegex: /आलू|आलु/ }
             ]
         };
 
+        // Execution States
         let currentCategory = 'twoLetter';
         let currentIndex = 0;
         let countdownInterval = null;
         let processingTimeout = null;
         const TIME_LIMIT = 10; 
 
+        // Document Object Nodes Maps
         const elEmoji = document.getElementById('word-emoji');
         const elHindi = document.getElementById('word-hindi');
         const elPhonetic = document.getElementById('word-phonetic');
@@ -138,6 +188,7 @@
         const btnNext = document.getElementById('btn-next');
         const tabButtons = document.querySelectorAll('.tab-btn');
 
+        // Recognition Framework Wire-up
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
 
