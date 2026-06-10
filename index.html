@@ -1,523 +1,1197 @@
-html
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>शब्द उच्चारण अभ्यास - बच्चों के लिए</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Baloo 2 (Playful Devanagari font) -->
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
-    <!-- Canvas Confetti for Celebration -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <style>
-        body {
-            font-family: 'Baloo 2', cursive, sans-serif;
-            background: linear-gradient(135deg, #fef08a 0%, #bbf7d0 100%);
-            min-height: 100vh;
-        }
-        /* पल्स एनीमेशन माइक के लिए */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
-        .mic-active {
-            animation: pulse-ring 1.5s infinite ease-in-out;
-        }
-        /* उछलता हुआ एनीमेशन सही जवाब के लिए */
-        @keyframes bounce-subtle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .bounce-active {
-            animation: bounce-subtle 0.6s ease-in-out;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>बोलो और सीखो 🎤</title>
+<style>
+  /* ── 100% OFFLINE BULLETPROOF CSS STYLES ── */
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
+  
+  :root {
+    --coral: #FF7043; 
+    --dark: #1A237E;
+    --card-bg: #FFFDE7; 
+    --correct: #43A047; 
+    --wrong: #E53935;
+    --sun: #FFD54F; 
+    --grass: #81C784;
+    --sky: #E3F2FD;
+  }
+  
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    touch-action: manipulation;
+  }
+  
+  body {
+    font-family: 'Baloo 2', 'Noto Sans Devanagari', 'Segoe UI Devanagari', 'Kohinoor Devanagari', cursive, sans-serif;
+    background: linear-gradient(135deg, #E3F2FD 0%, #F8BBD9 50%, #E8F5E9 100%);
+    min-height: 100vh;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    justify-content: flex-start; /* Anchors from the top to prevent shifting */
+    padding: 24px 16px; 
+    overflow-x: hidden;
+  }
+
+  /* ── Layout App Container ── */
+  .app-container {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+  }
+
+  /* ── Clouds ── */
+  .cloud { 
+    position: fixed; 
+    background: white; 
+    border-radius: 50px; 
+    opacity: 0.55; 
+    animation: drift linear infinite; 
+    z-index: 0; 
+  }
+  .cloud::before, .cloud::after { 
+    content:''; 
+    position:absolute; 
+    background:white; 
+    border-radius:50%; 
+  }
+  .cloud-1 { width:80px; height:30px; top:10%; left:-100px; animation-duration:28s; }
+  .cloud-1::before { width:40px; height:40px; top:-20px; left:10px; }
+  .cloud-1::after  { width:30px; height:30px; top:-10px; left:35px; }
+  
+  .cloud-2 { width:60px; height:22px; top:25%; left:-80px; animation-duration:38s; animation-delay:-12s; }
+  .cloud-2::before { width:28px; height:28px; top:-14px; left:8px; }
+  .cloud-2::after  { width:20px; height:20px; top:-8px; left:28px; }
+  
+  @keyframes drift { 
+    from { left:-150px; } 
+    to { left:110%; } 
+  }
+
+  header { 
+    text-align: center; 
+    margin-bottom: 16px; 
+    width: 100%;
+    position: relative;
+  }
+  header h1 { 
+    font-size: clamp(2rem, 6vw, 3.2rem); 
+    font-weight: 800; 
+    color: var(--dark); 
+    text-shadow: 3px 3px 0 rgba(255,255,255,0.9); 
+  }
+  header p { 
+    font-size: 0.95rem; 
+    color: #5C6BC0; 
+    font-weight: 700; 
+    margin-top: 2px; 
+  }
+
+  /* ── Tabs Scroller ── */
+  .tabs { 
+    display: flex; 
+    gap: 8px; 
+    flex-wrap: nowrap; 
+    overflow-x: auto; 
+    width: 100%;
+    justify-content: center; 
+    margin-bottom: 16px; 
+    padding: 6px 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; 
+  }
+  .tabs::-webkit-scrollbar {
+    display: none; 
+  }
+  @media(max-width: 440px) {
+    .tabs {
+      justify-content: flex-start; 
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  .tab {
+    flex-shrink: 0;
+    padding: 8px 20px; 
+    border-radius: 30px; 
+    border: 2px solid #E2E8F0;
+    font-family: inherit; 
+    font-size: 0.95rem; 
+    font-weight: 800; 
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+    background: white; 
+    color: #555;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    white-space: nowrap;
+  }
+  .tab:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    background-color: #FAFAFA;
+  }
+  .tab:active { 
+    transform: translateY(1px); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .tab.active-tab { color: white; }
+  
+  .tab[data-level="0"].active-tab { 
+    background: linear-gradient(135deg, #FF8A65, var(--coral)); 
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(255,112,67,0.3); 
+  }
+  .tab[data-level="1"].active-tab { 
+    background: linear-gradient(135deg, #7986CB, #5C6BC0); 
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(92,107,192,0.3); 
+  }
+  .tab[data-level="2"].active-tab { 
+    background: linear-gradient(135deg, #81C784, var(--grass)); 
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(129,199,132,0.3); 
+  }
+
+  /* ── Score bar ── */
+  .scorebar { 
+    display: flex; 
+    gap: 12px; 
+    justify-content: center; 
+    margin-bottom: 16px; 
+    width: 100%;
+  }
+  .score-pill {
+    background: white; 
+    border-radius: 30px; 
+    padding: 6px 18px;
+    font-weight: 800; 
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+    display: flex; 
+    align-items: center; 
+    gap: 6px;
+    border: 2px solid white;
+  }
+  .score-pill.correct { color: var(--correct); border-color: #C8E6C9; }
+  .score-pill.wrong   { color: var(--wrong); border-color: #FFCDD2; }
+
+  /* ── Main Flash Card (Fixed Heights to Prevent Layout Jumping) ── */
+  .card {
+    position: relative; 
+    background: var(--card-bg); 
+    border-radius: 36px;
+    padding: 24px 20px; 
+    width: 100%; 
+    text-align: center;
+    box-shadow: 0 12px 36px rgba(26,35,126,0.12), 0 3px 0 0 rgba(255,255,255,0.8) inset;
+    border: 4px solid white;
+    min-height: 440px; /* Lock overall card height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .word-label { 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    letter-spacing: 2px; 
+    color: #9E9E9E; 
+    margin-bottom: 4px; 
+    text-transform: uppercase;
+  }
+  
+  /* Fixed Height Display Container to avoid Matras stretching the card */
+  .word-display-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 130px; /* Absolutely stable height */
+    margin: 4px 0;
+  }
+
+  .word-display {
+    font-size: clamp(3.5rem, 12vw, 6.5rem); 
+    font-weight: 800; 
+    color: var(--dark);
+    line-height: 1; 
+    text-shadow: 3px 3px 0 rgba(79,99,255,0.12);
+  }
+  
+  .word-display.bounce { 
+    animation: wordBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  }
+  
+  @keyframes wordBounce {
+    0% { transform: scale(1); } 
+    40% { transform: scale(1.15) rotate(-3deg); }
+    70% { transform: scale(0.95) rotate(2deg); } 
+    100% { transform: scale(1); }
+  }
+  
+  .word-counter { 
+    font-size: 0.85rem; 
+    color: #9E9E9E; 
+    font-weight: 800; 
+    margin-bottom: 4px; 
+  }
+
+  /* ── Speaker Button (Circular SVG Speaker) ── */
+  .speak-helper-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    border: 2px solid #E2E8F0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 12;
+  }
+  .speak-helper-btn:hover {
+    transform: translateY(-2px);
+    border-color: #5C6BC0;
+    box-shadow: 0 6px 16px rgba(92,107,192,0.15);
+  }
+  .speak-helper-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  /* ── Progress Dots Wrapper ── */
+  .progress-dots-container {
+    width: 100%;
+    min-height: 38px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  
+  .dot { 
+    width: 8px; /* Small, neat dots as circled in screenshot 48529.png */
+    height: 8px; 
+    border-radius: 50%; 
+    background: #E2E8F0; 
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    border: none;
+  }
+  
+  /* Green for Correct Dot */
+  .dot.done-correct { 
+    background: var(--correct) !important; 
+    transform: scale(1.1);
+  }
+  
+  /* Red for Wrong Dot */
+  .dot.done-wrong { 
+    background: var(--wrong) !important; 
+    transform: scale(1.1);
+  }
+  
+  /* Pulsing yellow for Current Word */
+  .dot.current { 
+    background: var(--sun) !important; 
+    transform: scale(1.35); 
+    box-shadow: 0 0 6px rgba(255, 213, 79, 0.8); 
+  }
+
+  /* ── Symmetrical Grid Controls Row ── */
+  .controls-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Symmetrical 3-column setup */
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto 12px;
+    gap: 16px;
+  }
+
+  /* Flat Premium Navigation Button */
+  .nav-btn {
+    background: white;
+    border: 2px solid #E2E8F0;
+    color: var(--dark);
+    height: 52px;
+    border-radius: 26px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+  }
+  .nav-btn:hover {
+    background: #FAFAFA;
+    transform: translateY(-2px);
+    border-color: #5C6BC0;
+    box-shadow: 0 6px 16px rgba(92,107,192,0.1);
+  }
+  .nav-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  /* ── Flat Premium Mic button (Active green, Idle blue) ── */
+  .mic-btn {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, #5C6BC0, #3949AB);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(92,107,192,0.3);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    outline: none;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .mic-btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 12px 28px rgba(92,107,192,0.4);
+  }
+  .mic-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 12px rgba(92,107,192,0.25);
+  }
+  
+  /* Outer circle turns rich green when listening (Flat Premium - matches 48533.png) */
+  .mic-btn.listening {
+    background: #4CAF50 !important; 
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 8px 24px rgba(76,175,80,0.4) !important;
+    animation: pulse-green 1.2s ease infinite;
+  }
+  .mic-btn.listening:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(76,175,80,0.5) !important;
+  }
+  .mic-btn.listening:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 12px rgba(76,175,80,0.3) !important;
+  }
+
+  /* Base style of mic SVG container */
+  .mic-btn #micInner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  /* Explicit micro-styling for sharp clean vector rendering */
+  .mic-icon-svg {
+    width: 38px;
+    height: 38px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    display: block;
+  }
+
+  /* Red recording indicator glossy dot (Screenshot 48533.png perfect match) */
+  .mic-btn.listening #micInner {
+    width: 44px;
+    height: 44px;
+    background: #FF3B30; /* Glossy red recording dot */
+    border-radius: 50%;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), 0 2px 8px rgba(0,0,0,0.25);
+    display: block;
+    animation: pulse-red-dot 1s infinite alternate;
+  }
+  /* Hide vector SVG icon when recording dot is shown */
+  .mic-btn.listening #micInner svg {
+    display: none;
+  }
+
+  @keyframes pulse-red-dot {
+    0% { transform: scale(0.92); }
+    100% { transform: scale(1.08); }
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { box-shadow: 0 8px 24px rgba(76,175,80,0.4), 0 0 0 0 rgba(76,175,80,0.3); }
+    50% { box-shadow: 0 8px 24px rgba(76,175,80,0.4), 0 0 0 14px rgba(76,175,80,0); }
+  }
+
+  .mic-hint { 
+    font-size: 0.9rem; 
+    color: #616161; 
+    font-weight: 700; 
+    min-height: 22px; 
+    margin-bottom: 4px;
+  }
+
+  /* ── Pop-Up Feedback Overlay (100% Opaque - Matches screenshot 48528.png) ── */
+  .feedback {
+    position: absolute;
+    inset: 0;
+    border-radius: 32px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: 800; 
+    opacity: 0; 
+    transform: scale(0.95);
+    pointer-events: none; 
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    z-index: 50; 
+  }
+  .feedback.show { 
+    opacity: 1; 
+    transform: scale(1);
+    pointer-events: all; 
+  }
+  
+  /* Correct Answer Pop Box Theme (Matches 48528.png exactly) */
+  .feedback.correct-fb { 
+    background: #FFFFFF !important; 
+    color: var(--correct); 
+    border: 4px solid #C8E6C9;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Wrong Answer Pop Box Theme */
+  .feedback.wrong-fb { 
+    background: #FFFFFF !important; 
+    color: var(--wrong); 
+    border: 4px solid #FFCDD2;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  .feedback .fb-emoji-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .feedback .fb-text  { font-size: 1.6rem; font-weight: 800; }
+  .feedback .fb-heard { font-size: 0.95rem; color: #616161; margin-top: 6px; font-weight: 700; }
+
+  /* ── Completion Screen ── */
+  .completion {
+    display: none; 
+    position: absolute; 
+    inset: 0;
+    border-radius: 36px;
+    z-index: 60; 
+    text-align: center;
+    background: white; 
+    padding: 32px 24px;
+    width: 100%; 
+    height: 100%;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+    border: 4px solid white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #completionScreen:not(.show) {
+    display: none !important;
+  }
+  
+  .completion h2  { font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+  
+  .final-score { 
+    font-weight: 800; 
+    line-height: 1.1; 
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .completion p   { color: #616161; font-size: 1rem; margin: 6px 0 20px; font-weight: 700; }
+  
+  .restart-btn {
+    padding: 12px 32px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #5C6BC0, #3949AB);
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(92,107,192,0.3);
+    transition: transform 0.2s;
+  }
+  .restart-btn:hover { transform: scale(1.05); }
+
+  #errBanner {
+    display: none;
+    position: relative;
+    z-index: 2;
+    background: #FFEBEE;
+    border: 2px solid #EF5350;
+    border-radius: 16px;
+    padding: 10px 16px;
+    color: #C62828;
+    font-weight: 700;
+    font-size: 0.85rem;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  /* ── 100% Offline Custom Confetti Particle System ── */
+  .stars-container { 
+    position: fixed; 
+    inset: 0; 
+    pointer-events: none; 
+    z-index: 100; 
+    overflow: hidden; 
+  }
+  .offline-confetti {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    opacity: 0.9;
+    border-radius: 50%;
+    animation: confettiFall 2.2s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media(max-width: 440px){
+    body { padding: 12px; }
+    .card { padding: 20px 14px; border-radius: 28px; min-height: 410px; }
+    .mic-btn { width: 80px; height: 80px; }
+    .mic-btn.listening #micInner { width: 36px; height: 36px; }
+    header h1 { font-size: 1.8rem; }
+  }
+</style>
 </head>
-<body class="flex flex-col items-center justify-between p-4 md:p-6 text-slate-800">
+<body>
 
-    <!-- मुख्य कंटेनर -->
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border-4 border-yellow-300 flex flex-col justify-between my-auto">
-        
-        <!-- हेडर और शीर्षक -->
-        <div class="text-center mb-4">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-pink-500 drop-shadow-sm flex items-center justify-center gap-2">
-                <span>🗣️</span> शब्द बोलना सीखें! <span>✨</span>
-            </h1>
-            <p class="text-xs md:text-sm text-slate-500 font-semibold mt-1">प्यारे बच्चों, नीचे दिए गए शब्द को जोर से बोलें!</p>
-        </div>
+<div class="cloud cloud-1"></div>
+<div class="cloud cloud-2"></div>
+<div class="stars-container" id="starsContainer"></div>
 
-        <!-- स्कोर और प्रोग्रेस बार -->
-        <div class="bg-amber-50 rounded-2xl p-3 mb-4 border-2 border-dashed border-amber-200">
-            <div class="flex justify-between items-center mb-1">
-                <span class="text-sm font-bold text-amber-700 flex items-center gap-1">
-                    🎯 प्रोग्रेस: <span id="progress-text" class="text-pink-600">1/25</span>
-                </span>
-                <span class="text-sm font-bold text-amber-700 flex items-center gap-1">
-                    ⭐ स्कोर: <span id="score-text" class="text-yellow-600">0</span>
-                </span>
-            </div>
-            <!-- प्रोग्रेस बार ट्रैक -->
-            <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                <div id="progress-bar" class="bg-gradient-to-r from-pink-400 to-yellow-400 h-full transition-all duration-300" style="width: 4%;"></div>
-            </div>
-        </div>
+<!-- Unified Flex App Wrapper -->
+<div class="app-container">
+  
+  <header>
+    <h1>🎤 बोलो और सीखो</h1>
+    <p>शब्द देखो, बोलो, सीखो!</p>
+  </header>
 
-        <!-- श्रेणी चयनकर्ता (Categories) -->
-        <div class="grid grid-cols-3 gap-2 mb-6">
-            <button onclick="changeCategory('two_letter')" id="btn-two_letter" class="cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-pink-500 text-white border-pink-700 hover:bg-pink-400">
-                २ अक्षर वाले
-            </button>
-            <button onclick="changeCategory('three_letter')" id="btn-three_letter" class="cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200">
-                ३ अक्षर वाले
-            </button>
-            <button onclick="changeCategory('matra')" id="btn-matra" class="cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200">
-                मात्रा वाले
-            </button>
-        </div>
+  <!-- Symmetrical Styled Tabs with premium Flat Pill Look (No wrapping) -->
+  <div class="tabs">
+    <button class="tab active-tab" data-level="0" onclick="switchLevel(0)">📝 दो अक्षर</button>
+    <button class="tab"            data-level="1" onclick="switchLevel(1)">📖 तीन अक्षर</button>
+    <button class="tab"            data-level="2" onclick="switchLevel(2)">🌟 मात्रा वाले</button>
+  </div>
 
-        <!-- मुख्य शब्द कार्ड -->
-        <div id="word-card" class="bg-gradient-to-b from-blue-50 to-indigo-50 border-4 border-blue-200 rounded-3xl p-6 mb-6 text-center shadow-inner relative overflow-hidden min-h-[180px] flex flex-col justify-center items-center">
-            
-            <!-- सुनने का बटन -->
-            <button onclick="speakCurrentWord()" class="absolute top-3 right-3 bg-white hover:bg-yellow-100 p-2.5 rounded-full shadow-md border border-yellow-200 transition-transform active:scale-95" title="शब्द का उच्चारण सुनें">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 18.75V5.25L7.75 9.5H4.5v5h3.25L12 18.75z" />
-                </svg>
-            </button>
+  <!-- Score Tracker -->
+  <div class="scorebar">
+    <div class="score-pill correct">✅ <span id="correctCount">0</span> सही</div>
+    <div class="score-pill wrong">❌ <span id="wrongCount">0</span> गलत</div>
+  </div>
 
-            <!-- मुख्य शब्द टेक्स्ट -->
-            <div id="word-display" class="text-6xl md:text-7xl font-extrabold text-blue-600 tracking-wide select-none filter drop-shadow">
-                घर
-            </div>
-            
-            <!-- छोटा संकेत -->
-            <div id="word-hint" class="text-xs text-slate-400 font-bold mt-2 uppercase tracking-widest">
-                इसे पढ़िए और बोलिए
-            </div>
-        </div>
+  <!-- Error Banner -->
+  <div id="errBanner"></div>
 
-        <!-- स्टेटस और फीडबैक संदेश -->
-        <div class="text-center min-h-[50px] mb-4 flex flex-col justify-center">
-            <div id="feedback-text" class="text-lg font-bold text-slate-600">
-                शुरू करने के लिए नीचे दिए गए माइक को दबाएं!
-            </div>
-            <div id="user-spoken-container" class="hidden text-xs text-slate-500 mt-1">
-                आपने बोला: "<span id="user-spoken-word" class="font-extrabold text-purple-600 text-sm"></span>"
-            </div>
-        </div>
+  <!-- Main Game Card (Locked Dimension & Height) -->
+  <div class="card" id="mainCard">
+    
+    <!-- Listen Assistant Button (Symmetrical SVG Speaker) -->
+    <button class="speak-helper-btn" onclick="pronounceWord()" title="शब्द सुनें">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 18.75V5.25L7.75 9.5H4.5v5h3.25L12 18.75z" />
+      </svg>
+    </button>
+    
+    <div class="word-label">यह शब्द बोलो</div>
+    
+    <!-- Stable vertical box for the word -->
+    <div class="word-display-container">
+      <div class="word-display" id="wordDisplay">घर</div>
+    </div>
+    
+    <div class="word-counter" id="wordCounter">1 / 25</div>
+    
+    <!-- Sleek Progress Dots Container (Guarantees zero height shifts) -->
+    <div class="progress-dots-container" id="progressDots"></div>
 
-        <!-- एक्शन और माइक बटन -->
-        <div class="flex flex-col items-center justify-center gap-4">
-            
-            <!-- मुख्य माइक बटन -->
-            <button id="mic-btn" onclick="toggleRecognition()" class="w-24 h-24 rounded-full bg-red-500 hover:bg-red-400 border-8 border-red-100 flex items-center justify-center shadow-lg transition-all active:scale-95 relative">
-                <!-- माइक आइकॉन -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-                <!-- पल्स इफेक्ट रिंग -->
-                <div id="mic-ring" class="absolute inset-0 rounded-full bg-red-400 opacity-0 -z-10"></div>
-            </button>
+    <!-- Symmetrical Grid Controls: Left Pill button, Center Microphone, Right Pill button -->
+    <div class="controls-row">
+      <button class="nav-btn" onclick="prevWord()" title="पिछला शब्द">
+        पिछला
+      </button>
+      
+      <!-- Mic button with active red recording light inside green ring -->
+      <button class="mic-btn" id="micBtn" onclick="startMicFlow()">
+        <span id="micInner">
+          <svg xmlns="http://www.w3.org/2000/svg" class="mic-icon-svg" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </span>
+      </button>
+      
+      <button class="nav-btn" onclick="nextWordManual()" title="अगला शब्द">
+        अगला
+      </button>
+    </div>
+    
+    <div class="mic-hint" id="micHint">माइक दबाकर ज़ोर से बोलें</div>
 
-            <!-- अगला और पिछला बटन नेविगेशन -->
-            <div class="flex justify-between w-full px-4 mt-2">
-                <button onclick="prevWord()" class="flex items-center gap-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all border-b-4 border-slate-300">
-                    ⬅️ पिछला
-                </button>
-                <button onclick="nextWord()" class="flex items-center gap-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all border-b-4 border-slate-300">
-                    अगला ➡️
-                </button>
-            </div>
-        </div>
-
+    <!-- Feedback Overlay Pop Box Style (Covering exactly the word area with clean responsive container) -->
+    <div class="feedback" id="feedback">
+      <!-- Icon Container for gorgeous Glowing Gold Star from screenshot 48528.png -->
+      <div id="fbIconContainer" class="fb-emoji-container"></div>
+      <div class="fb-text" id="fbText">ठीक है! शाबाश!</div>
+      <div class="fb-heard" id="fbHeard">तुमने बोला: "रात"</div>
     </div>
 
-    <!-- पाद लेख / फूटर -->
-    <div class="text-center mt-6 text-xs text-slate-600 font-bold max-w-xs md:max-w-md">
-        <p>💡 सबसे बेहतर परिणाम के लिए शांत वातावरण में और Google Chrome या Safari का उपयोग करें।</p>
+    <!-- Congratulations / Level End screen - Nested inside the card -->
+    <div class="completion" id="completionScreen">
+      <div style="font-size:4rem; margin-bottom: 8px;">🏆</div>
+      <h2>शाबाश!</h2>
+      <div class="final-score" id="finalScore">0 / 0</div>
+      <p id="finalMsg"></p>
+      <button class="restart-btn" onclick="restartLevel()">🔄 फिर से खेलो</button>
     </div>
+  </div>
 
-    <!-- ब्राउज़र सपोर्ट न होने पर चेतावनी बैनर -->
-    <div id="support-warning" class="hidden fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-6 text-center">
-        <div class="bg-white rounded-3xl p-6 max-w-sm border-4 border-red-500">
-            <span class="text-5xl">⚠️</span>
-            <h2 class="text-2xl font-black text-red-600 mt-2">आपका ब्राउज़र इस ऐप के अनुकूल नहीं है</h2>
-            <p class="text-sm text-slate-600 mt-2 font-bold">
-                इस ऐप में आवाज पहचानने वाली सुविधा का उपयोग किया गया है। कृपया इसे <strong class="text-blue-600">Google Chrome</strong> या अपने मोबाइल के मूल ब्राउज़र (Safari) में खोलें।
-            </p>
-        </div>
-    </div>
+</div>
 
-    <script>
-        // --- शब्द सूचियाँ (Word Database) ---
-        const wordCategories = {
-            two_letter: [
-                "घर", "नल", "जल", "फल", "बस", "छत", "खत", "रथ", "टब", "जग", 
-                "वन", "मन", "तन", "धन", "सच", "कब", "तब", "जब", "सब", "डर", 
-                "पर", "कर", "चल", "पल", "हल"
-            ],
-            three_letter: [
-                "कमल", "कलश", "गगन", "मदन", "पवन", "नमक", "शहर", "नहर", "सड़क", "बटन"
-            ],
-            matra: [
-                "आम", "काम", "नाम", "दाम", "रात", "हाथ", "बाल", "दिन", "मिल", "सिर", 
-                "नदी", "चील", "तीर", "परी", "खीर", "पुल", "सुन", "गुड़", "पशु", "फूल", 
-                "भालू", "आलू"
-            ]
-        };
+<script>
+// --- Full Word Database ---
+const WORDS = [
+  ['घर','नल','जल','फल','बस','छत','खत','रथ','टब','जग','वन','मन','तन','धन','सच','कब','तब','जब','सब','डर','पर','कर','चल','पल','हल'],
+  ['कमल','कलश','गगन','मदन','पवन','नमक','शहर','नहर','सड़क','बटन'],
+  ['आम','काम','नाम','दाम','रात','हाथ','बाल','दिन','मिल','सिर','नदी','चील','तीर','परी','खीर','पुल','सुन','गुड़','पशु','फूल','भालू','आलू'],
+];
 
-        // --- स्टेट मैनेजमेंट (State) ---
-        let currentCategory = 'two_letter';
-        let currentIndex = 0;
-        let score = 0;
-        let isListening = false;
-        let isSpeechSynthesizing = false;
+let currentLevel = 0;
+let wordList = [];
+let wordIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let recognition = null;
+let isListening = false;
+let results = [];
 
-        // --- स्पीच रिकग्निशन और सिंथेसिस सेटअप ---
-        let recognition = null;
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// For protecting speechSynthesis from Garbage Collection and managing automatic page transitions
+window.activeUtterances = [];
+let autoAdvanceTimeout = null;
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false; // केवल एक बार सुनने के लिए
-            recognition.lang = 'hi-IN'; // हिन्दी भाषा सेट करें
-            recognition.interimResults = false; // फाइनल परिणाम ही लें
-            recognition.maxAlternatives = 1;
-        } else {
-            // यदि ब्राउज़र में स्पीच रिकग्निशन समर्थित नहीं है
-            document.getElementById('support-warning').classList.remove('hidden');
-        }
+// --- Browser Sound Synthesis Engine (Web Audio API) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playChimeTone(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-        // --- वेब ऑडियो API से साउंड जनरेट करना (No External MP3 Assets Required) ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (type === 'success') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  } else if (type === 'failure') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(240, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(140, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.38);
+  } else if (type === 'click') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+  }
+}
 
-        function playSound(type) {
-            // ऑडियो कॉन्टेक्स्ट फिर से शुरू करना यदि वह सुप्त (suspended) हो
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+// --- Local Chrome Text-to-Speech Pronunciation Voice ---
+function speakResponse(text, callback) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN';
+    utterance.rate = 0.85;
 
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+    window.activeUtterances.push(utterance);
+    if (window.activeUtterances.length > 5) window.activeUtterances.shift();
 
-            if (type === 'success') {
-                // सही जवाब के लिए खुशनुमा बढ़ती हुई आवाज़ (Arpeggio)
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
-                osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.35);
-            } else if (type === 'failure') {
-                // गलत जवाब के लिए थोड़ी गंभीर आवाज़
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(250, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.4);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.45);
-            } else if (type === 'click') {
-                // साधारण क्लिक की आवाज़
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.08);
-            }
-        }
+    const voices = window.speechSynthesis.getVoices();
+    const hindiVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('HI'));
+    if (hindiVoice) utterance.voice = hindiVoice;
 
-        // --- टेक्स्ट-टू-स्पीच (TTS) - बोलना ---
-        function speakText(text, callback) {
-            if ('speechSynthesis' in window) {
-                // पुरानी किसी भी स्पीच को तुरंत रद्द करें
-                window.speechSynthesis.cancel();
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'hi-IN'; // हिन्दी भाषा
-                utterance.rate = 0.85; // बच्चों के लिए बोलने की गति थोड़ी धीमी
+    utterance.onend = () => { if (callback) callback(); };
+    utterance.onerror = () => { if (callback) callback(); };
+    window.speechSynthesis.speak(utterance);
+  } else {
+    if (callback) callback();
+  }
+}
 
-                // हिन्दी आवाज़ ढूंढें और सेट करें
-                const voices = window.speechSynthesis.getVoices();
-                const hindiVoice = voices.find(voice => voice.lang.includes('hi') || voice.lang.includes('HI'));
-                if (hindiVoice) {
-                    utterance.voice = hindiVoice;
-                }
+function pronounceWord() {
+  const target = wordList[wordIndex];
+  speakResponse(target);
+}
 
-                utterance.onend = () => {
-                    if (callback) callback();
-                };
+/* ─────────────────────────────────────────
+   MICROPHONE AND RECOGNITION CONTROLLER
+   Requests audio permission using getUserMedia,
+   then runs native Speech Recognition with green style onactive.
+───────────────────────────────────────── */
+async function startMicFlow() {
+  if (isListening) return;
+  playChimeTone('click');
 
-                utterance.onerror = () => {
-                    if (callback) callback();
-                };
+  // Verify browser supports recognition
+  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+    showErr('❌ आपके ब्राउज़र में Speech Recognition नहीं है। Google Chrome का उपयोग करें।');
+    return;
+  }
 
-                window.speechSynthesis.speak(utterance);
-            } else {
-                if (callback) callback();
-            }
-        }
+  document.getElementById('micHint').textContent = "अनुमति की जांच हो रही है... ⏳";
 
-        // --- वर्तमान शब्द का उच्चारण बच्चे को सुनाएं ---
-        function speakCurrentWord() {
-            playSound('click');
-            const word = getCurrentWord();
-            speakText(word);
-        }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Stop the tracks immediately so we don't lock the mic open
+    stream.getTracks().forEach(track => track.stop());
 
-        // --- श्रेणियों का काम (Category Logic) ---
-        function changeCategory(category) {
-            playSound('click');
-            currentCategory = category;
-            currentIndex = 0;
-            
-            // बटन एक्टिव स्टाइलिंग अपडेट करें
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = "cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200";
-            });
+    // Initiate recognition
+    startActualRecognition();
+  } catch (err) {
+    console.error("Mic permission error: ", err);
+    showErr("❌ माइक अनुमति नहीं मिली। कृपया एड्रेस बार पर क्लिक करके माइक की अनुमति दें।");
+    document.getElementById('micHint').textContent = "❌ माइक चालू करें";
+  }
+}
 
-            const activeBtn = document.getElementById(`btn-${category}`);
-            if (category === 'two_letter') {
-                activeBtn.className = "cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-pink-500 text-white border-pink-700 hover:bg-pink-400";
-            } else if (category === 'three_letter') {
-                activeBtn.className = "cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-yellow-500 text-white border-yellow-700 hover:bg-yellow-400";
-            } else {
-                activeBtn.className = "cat-btn py-2 px-1 text-xs md:text-sm font-extrabold rounded-xl border-b-4 transition-all duration-150 bg-teal-500 text-white border-teal-700 hover:bg-teal-400";
-            }
+function startActualRecognition() {
+  if (!recognition) {
+    recognition = buildSpeechRecognizer();
+  }
+  
+  try {
+    recognition.start();
+  } catch (e) {
+    if (e.name !== 'InvalidStateError') {
+      recognition = buildSpeechRecognizer();
+      try { recognition.start(); } catch(err) {}
+    }
+  }
+}
 
-            updateUI();
-            stopSpeechRecognition();
-        }
+function buildSpeechRecognizer() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const r = new SR();
+  r.lang = 'hi-IN';
+  r.interimResults = false;
+  r.maxAlternatives = 8;
+  r.continuous = false;
 
-        // --- वर्तमान शब्द प्राप्त करना ---
-        function getCurrentWord() {
-            return wordCategories[currentCategory][currentIndex];
-        }
+  r.onstart = () => {
+    isListening = true;
+    document.getElementById('micBtn').classList.add('listening'); // Sets green style directly!
+    document.getElementById('micHint').textContent = 'सुन रहा हूँ... बोलिए! 🎙️';
+    showErr('');
+  };
 
-        // --- यूआई अपडेट करें (Update UI) ---
-        function updateUI() {
-            const word = getCurrentWord();
-            const wordsList = wordCategories[currentCategory];
-            
-            // शब्द दिखाएं
-            const wordDisplay = document.getElementById('word-display');
-            wordDisplay.innerText = word;
-            
-            // सुंदर यादृच्छिक रंग थीम
-            const textColors = ['text-blue-600', 'text-pink-600', 'text-emerald-600', 'text-violet-600', 'text-rose-600'];
-            const randomColor = textColors[Math.floor((currentIndex + currentCategory.charCodeAt(0)) % textColors.length)];
-            wordDisplay.className = `text-6xl md:text-7xl font-extrabold tracking-wide select-none filter drop-shadow transition-colors duration-300 ${randomColor}`;
+  r.onend = () => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    if (document.getElementById('micHint').textContent === 'सुन रहा हूँ... बोलिए! 🎙️') {
+      document.getElementById('micHint').textContent = 'माइक दबाकर ज़ोर से बोलें';
+    }
+  };
 
-            // प्रोग्रेस और स्कोर अपडेट
-            document.getElementById('progress-text').innerText = `${currentIndex + 1}/${wordsList.length}`;
-            document.getElementById('score-text').innerText = score;
-            
-            const progressPercent = ((currentIndex + 1) / wordsList.length) * 100;
-            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+  r.onerror = (e) => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
 
-            // फीडबैक साफ़ करें
-            document.getElementById('feedback-text').innerText = "शुरू करने के लिए नीचे दिए गए माइक को दबाएं!";
-            document.getElementById('feedback-text').className = "text-lg font-bold text-slate-600";
-            document.getElementById('user-spoken-container').classList.add('hidden');
-            
-            // बॉर्डर को रिसेट करें
-            const card = document.getElementById('word-card');
-            card.className = "bg-gradient-to-b from-blue-50 to-indigo-50 border-4 border-blue-200 rounded-3xl p-6 mb-6 text-center shadow-inner relative overflow-hidden min-h-[180px] flex flex-col justify-center items-center";
-        }
+    const errorMsgs = {
+      'not-allowed': '❌ माइक की अनुमति नहीं मिली। ब्राउज़र की सेटिंग में जाकर अनुमति चालू करें।',
+      'no-speech': '🔇 कुछ सुनाई नहीं दिया — थोड़ा सा तेज़ बोलें',
+      'network': '⚠️ इंटरनेट चाहिए — वाईफ़ाई/डाटा जोड़कर फिर कोशिश करें',
+    };
+    const msg = errorMsgs[e.error] || `⚠️ फिर कोशिश करें (${e.error})`;
+    document.getElementById('micHint').textContent = e.error === 'no-speech' ? msg : '❌ माइक चालू करें';
+    if (e.error !== 'no-speech') showErr(msg);
+  };
 
-        // --- शब्द मिलान शुद्धिकरण (Normalization logic for robust Hindi matching) ---
-        function cleanWord(word) {
-            if (!word) return "";
-            // सामान्य विराम चिन्ह, अतिरिक्त स्पेस, और विशेष वर्ण हटाएं
-            return word.trim()
-                       .replace(/[\s.,\/#!$%\^&\*;:{}=\-_`~()?।]/g,"")
-                       .replace(/\u200B/g, "") // ज़ीरो विड्थ स्पेस हटाएं
-                       .replace(/ड़/g, "ड")    // सड़क के 'ड़' और 'ड' को समान मानें
-                       .replace(/ढ़/g, "ढ")
-                       .replace(/ऋ/g, "रि");
-        }
+  r.onresult = (e) => {
+    const target = wordList[wordIndex];
+    let heard = '', matched = false;
 
-        // --- स्पीच रिकग्निशन चालू/बंद करना ---
-        function toggleRecognition() {
-            if (isListening) {
-                stopSpeechRecognition();
-            } else {
-                startSpeechRecognition();
-            }
-        }
+    // Standard evaluations
+    for (let i = 0; i < e.results[0].length; i++) {
+      const candidate = e.results[0][i].transcript.trim();
+      if (!heard) heard = candidate;
+      if (checkLenientMatch(candidate, target)) { 
+        matched = true; 
+        heard = candidate; 
+        break; 
+      }
+    }
+    
+    showFeedback(matched, heard || '(कुछ सुनाई नहीं दिया)');
+  };
 
-        function startSpeechRecognition() {
-            if (!recognition) return;
-            playSound('click');
-            
-            isListening = true;
-            
-            // माइक बटन की स्टाइल बदलना
-            const micBtn = document.getElementById('mic-btn');
-            const micRing = document.getElementById('mic-ring');
-            micBtn.className = "w-24 h-24 rounded-full bg-emerald-500 hover:bg-emerald-400 border-8 border-emerald-100 flex items-center justify-center shadow-lg transition-all active:scale-95 relative";
-            micRing.className = "absolute inset-0 rounded-full bg-emerald-400 mic-active -z-10";
+  return r;
+}
 
-            document.getElementById('feedback-text').innerText = "सुन रहा हूँ... बोलिए! 🎙️";
-            document.getElementById('feedback-text').className = "text-lg font-bold text-emerald-600 animate-pulse";
-            document.getElementById('user-spoken-container').classList.add('hidden');
+// Advanced Lenient Matching Algorithm
+function checkLenientMatch(spoken, target) {
+  const cleanSpoken = norm(spoken);
+  const cleanTarget = norm(target);
+  
+  if (cleanSpoken === cleanTarget) return true;
+  if (cleanSpoken.includes(cleanTarget) || cleanTarget.includes(cleanSpoken)) return true;
+  
+  // Approximate/Phonetic simplification
+  const phonSpoken = phoneticSimplify(cleanSpoken);
+  const phonTarget = phoneticSimplify(cleanTarget);
+  
+  if (phonSpoken === phonTarget) return true;
+  if (phonSpoken.includes(phonTarget) || phonTarget.includes(phonSpoken)) return true;
+  
+  return false;
+}
 
-            try {
-                recognition.start();
-            } catch (e) {
-                console.log("Recognition error:", e);
-            }
-        }
+function phoneticSimplify(str) {
+  return str
+    .replace(/श/g, 'स')
+    .replace(/ष/g, 'स')
+    .replace(/ड़/g, 'र')
+    .replace(/ढ़/g, 'ढ')
+    .replace(/ड़/g, 'र')
+    .replace(/ढ/g, 'ढ')
+    .replace(/ळ/g, 'ल')
+    .replace(/व/g, 'ब')
+    .replace(/\s/g, ''); // strip spaces for continuous checks
+}
 
-        function stopSpeechRecognition() {
-            if (!recognition || !isListening) return;
-            isListening = false;
-            
-            // माइक बटन सामान्य करना
-            const micBtn = document.getElementById('mic-btn');
-            const micRing = document.getElementById('mic-ring');
-            micBtn.className = "w-24 h-24 rounded-full bg-red-500 hover:bg-red-400 border-8 border-red-100 flex items-center justify-center shadow-lg transition-all active:scale-95 relative";
-            micRing.className = "absolute inset-0 rounded-full bg-red-400 opacity-0 -z-10";
+function norm(s) {
+  if (!s) return "";
+  return s.trim()
+          .replace(/[\u200B-\u200F\uFEFF]/g,'');
+}
 
-            try {
-                recognition.stop();
-            } catch (e) {
-                console.log(e);
-            }
-        }
+function showErr(msg) {
+  const b = document.getElementById('errBanner');
+  if (!msg) { 
+    b.style.display = 'none'; 
+    return; 
+  }
+  b.textContent = msg;
+  b.style.display = 'block';
+}
 
-        // --- स्पीच रिकग्निशन इवेंट्स ---
-        if (recognition) {
-            recognition.onresult = function(event) {
-                stopSpeechRecognition();
-                const spokenText = event.results[0][0].transcript;
-                processPronunciation(spokenText);
-            };
+/* ─── Game Loop Logic ─── */
+function initLevel(level) {
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
+  currentLevel = level;
+  wordList = [...WORDS[level]];
+  wordIndex = 0; 
+  correctCount = 0; 
+  wrongCount = 0;
+  results = new Array(wordList.length).fill(null);
+  
+  document.getElementById('correctCount').textContent = 0;
+  document.getElementById('wrongCount').textContent = 0;
+  document.getElementById('completionScreen').classList.remove('show');
+  document.getElementById('mainCard').style.display = 'block';
+  
+  hideFeedback();
+  showErr('');
+  renderWord();
+  renderProgressTrack();
+}
 
-            recognition.onerror = function(event) {
-                stopSpeechRecognition();
-                console.log('Error occurred in recognition: ' + event.error);
-                if (event.error === 'no-speech') {
-                    document.getElementById('feedback-text').innerText = "आवाज़ नहीं सुनाई दी, फिर से प्रयास करें!";
-                    document.getElementById('feedback-text').className = "text-lg font-bold text-amber-500";
-                } else {
-                    document.getElementById('feedback-text').innerText = "कुछ गड़बड़ हुई, कृपया फिर से बोलें!";
-                    document.getElementById('feedback-text').className = "text-lg font-bold text-red-500";
-                }
-            };
+function switchLevel(level) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+  document.querySelector(`.tab[data-level="${level}"]`).classList.add('active-tab');
+  initLevel(level);
+}
 
-            recognition.onend = function() {
-                if (isListening) {
-                    stopSpeechRecognition();
-                }
-            };
-        }
+// Renders individual dots (Green for correct, Red for wrong, Yellow for active) inside fixed-height flexbar
+function renderProgressTrack() {
+  const container = document.getElementById('progressDots');
+  container.innerHTML = '';
+  
+  wordList.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i < wordIndex) {
+      d.classList.add(results[i] === 'correct' ? 'done-correct' : 'done-wrong');
+    } else if (i === wordIndex) {
+      d.classList.add('current');
+    }
+    container.appendChild(d);
+  });
+}
 
-        // --- बोले गए शब्द का मूल्यांकन (Check pronunciation) ---
-        function processPronunciation(spokenText) {
-            const targetWord = getCurrentWord();
-            
-            const cleanSpoken = cleanWord(spokenText);
-            const cleanTarget = cleanWord(targetWord);
+function renderWord() {
+  const d = document.getElementById('wordDisplay');
+  d.textContent = wordList[wordIndex];
+  d.classList.remove('bounce');
+  void d.offsetWidth; // Force reflow
+  d.classList.add('bounce');
+  document.getElementById('wordCounter').textContent = `${wordIndex+1} / ${wordList.length}`;
+  document.getElementById('micHint').textContent = 'माइक दबाकर ज़ोर से बोलें';
+}
 
-            // क्या शब्द मेल खाता है? (या यदि बोला गया शब्द बड़े वाक्य में शामिल हो)
-            const isCorrect = cleanSpoken === cleanTarget || cleanSpoken.includes(cleanTarget) || cleanTarget.includes(cleanSpoken);
+function showFeedback(isCorrect, heard) {
+  const fb = document.getElementById('feedback');
+  const iconContainer = document.getElementById('fbIconContainer');
 
-            // क्या बोला गया शब्द स्क्रीन पर दिखाएं
-            const spokenSpan = document.getElementById('user-spoken-word');
-            spokenSpan.innerText = spokenText;
-            document.getElementById('user-spoken-container').classList.remove('hidden');
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
 
-            const card = document.getElementById('word-card');
-            const feedbackText = document.getElementById('feedback-text');
+  if (isCorrect) {
+    // --- CORRECT ANSWER FLOW ---
+    results[wordIndex] = 'correct'; 
+    correctCount++;
+    document.getElementById('correctCount').textContent = correctCount;
+    fb.className = 'feedback correct-fb show';
+    
+    // Glowing beautiful gold star matching 48528.png exactly
+    iconContainer.innerHTML = `
+      <svg class="w-16 h-16 text-yellow-400 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor" style="filter: drop-shadow(0px 4px 10px rgba(255, 215, 0, 0.6));">
+        <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168L.132 9.21l8.2-1.192z"/>
+      </svg>
+    `;
+    
+    document.getElementById('fbText').textContent  = 'ठीक है! शाबाश!';
+    document.getElementById('fbHeard').textContent = `तुमने बोला: "${heard}"`;
+    
+    playChimeTone('success');
+    speakResponse("ठीक है!");
+    
+    // 100% Offline celebration particles
+    launchCelebrateConfetti();
 
-            if (isCorrect) {
-                // --- सही जवाब (Correct Answer) ---
-                score += 10;
-                playSound('success');
-                
-                // कंफ़ेटी एनीमेशन (Confetti burst)
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
+    // AUTO-ADVANCE: Automatically loads the next word after 2 seconds
+    autoAdvanceTimeout = setTimeout(() => {
+      nextWord();
+    }, 2000);
 
-                // कार्ड का हरा होना और एनीमेशन
-                card.className = "bg-gradient-to-b from-emerald-50 to-green-100 border-4 border-green-400 rounded-3xl p-6 mb-6 text-center shadow-inner relative overflow-hidden min-h-[180px] flex flex-col justify-center items-center bounce-active";
-                
-                feedbackText.innerText = "शाबाश! ठीक है! 🎉";
-                feedbackText.className = "text-2xl font-black text-green-600";
+  } else {
+    // --- WRONG ANSWER FLOW ---
+    results[wordIndex] = 'wrong'; 
+    wrongCount++;
+    document.getElementById('wrongCount').textContent = wrongCount;
+    fb.className = 'feedback wrong-fb show';
+    
+    // Soft smiley/retry emoji matching correct visual aesthetics
+    iconContainer.innerHTML = `
+      <span class="text-5xl select-none" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">😊</span>
+    `;
+    
+    document.getElementById('fbText').textContent  = 'गलत है, फिर से कोशिश करो!';
+    document.getElementById('fbHeard').textContent = `तुमने बोला: "${heard}"`;
+    
+    playChimeTone('failure');
+    speakResponse("गलत है, फिर से कोशिश करें!");
 
-                // ऑडियो फीडबैक: "ठीक है!"
-                speakText("ठीक है!", () => {
-                    // थोड़ी देर बाद स्वचालित रूप से अगले शब्द पर जाएं
-                    setTimeout(() => {
-                        nextWord(false); // स्कोर बढ़ाए बिना आगे बढ़े क्योंकि पहले ही स्कोर बढ़ा चुके हैं
-                    }, 1200);
-                });
+    // AUTO-RESET: Closes wrong overlay after 2 seconds so they can retry the same word immediately
+    autoAdvanceTimeout = setTimeout(() => {
+      hideFeedback();
+      results[wordIndex] = null; // resets progress state for retry
+      renderProgressTrack();
+      document.getElementById('micHint').textContent = 'माइक दबाकर ज़ोर से बोलें';
+    }, 2000);
+  }
+  renderProgressTrack();
+}
 
-            } else {
-                // --- गलत जवाब (Incorrect Answer) ---
-                playSound('failure');
+function hideFeedback() { 
+  document.getElementById('feedback').className = 'feedback'; 
+}
 
-                // कार्ड का नारंगी होना
-                card.className = "bg-gradient-to-b from-amber-50 to-orange-100 border-4 border-orange-300 rounded-3xl p-6 mb-6 text-center shadow-inner relative overflow-hidden min-h-[180px] flex flex-col justify-center items-center";
-                
-                feedbackText.innerText = "कोई बात नहीं! फिर से कोशिश करें 💪";
-                feedbackText.className = "text-lg font-bold text-orange-600";
+function nextWord() {
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
+  
+  // TRIGGER COMPLETION: Show only when the last word of the category is pronounced successfully
+  if (wordIndex >= wordList.length - 1 && results[wordIndex] === 'correct') {
+    hideFeedback();
+    showCompletionScreen();
+    return;
+  }
 
-                // ऑडियो फीडबैक: "गलत है, फिर से कोशिश करें"
-                speakText("गलत है, फिर से कोशिश करें!");
-            }
-        }
+  if (results[wordIndex] !== 'correct') {
+    hideFeedback();
+    results[wordIndex] = null;
+    renderProgressTrack();
+    document.getElementById('micHint').textContent = 'माइक दबाकर ज़ोर से बोलें';
+    return;
+  }
+  
+  wordIndex++;
+  hideFeedback();
+  renderWord(); 
+  renderProgressTrack();
+}
 
-        // --- अगले/पिछले शब्द पर जाने का कंट्रोल ---
-        function nextWord(manualClick = true) {
-            if (manualClick) {
-                playSound('click');
-            }
-            const wordsList = wordCategories[currentCategory];
-            if (currentIndex < wordsList.length - 1) {
-                currentIndex++;
-            } else {
-                // अंतिम शब्द के बाद वापस पहले शब्द पर आएं
-                currentIndex = 0;
-            }
-            updateUI();
-            stopSpeechRecognition();
-        }
+// Next Word manually clicked by user - Now seamlessly wraps back to first word
+function nextWordManual() {
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
+  playChimeTone('click');
+  hideFeedback();
+  if (wordIndex < wordList.length - 1) {
+    wordIndex++;
+    renderWord();
+    renderProgressTrack();
+  } else {
+    // Symmetrically wraps around back to the first word (index 0) without triggering completion screen
+    wordIndex = 0;
+    renderWord();
+    renderProgressTrack();
+  }
+}
 
-        function prevWord() {
-            playSound('click');
-            if (currentIndex > 0) {
-                currentIndex--;
-            } else {
-                // पहले शब्द से वापस अंतिम शब्द पर जाएं
-                const wordsList = wordCategories[currentCategory];
-                currentIndex = wordsList.length - 1;
-            }
-            updateUI();
-            stopSpeechRecognition();
-        }
+// Previous Word manually clicked by user - Symmetrically wraps to last word
+function prevWord() {
+  if (autoAdvanceTimeout) {
+    clearTimeout(autoAdvanceTimeout);
+    autoAdvanceTimeout = null;
+  }
+  playChimeTone('click');
+  hideFeedback();
+  if (wordIndex > 0) {
+    wordIndex--;
+    renderWord();
+    renderProgressTrack();
+  } else {
+    // Symmetrically wraps around to the last word of the list
+    wordIndex = wordList.length - 1;
+    renderWord();
+    renderProgressTrack();
+  }
+}
 
-        // --- प्रारंभ में शुरू करने का कोड (Onload initialization) ---
-        window.onload = function() {
-            // स्पीच सिंथेसिस इंजन लोड होने के लिए थोड़ी देर इंतजार करना पड़ सकता है
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.getVoices();
-            }
-            updateUI();
-        };
-    </script>
+function showCompletionScreen() {
+  document.getElementById('completionScreen').classList.add('show');
+  
+  // Use independent colors and margins for legibility to completely avoid diagonal overlap issues (e.g. "1 / 10" looking like "1 / 0")
+  document.getElementById('finalScore').innerHTML = `
+    <span style="color: var(--correct); font-size: 3.5rem; font-weight: 800;">${correctCount}</span>
+    <span style="color: #94A3B8; font-size: 2.2rem; font-weight: 600; margin: 0 14px;">/</span>
+    <span style="color: var(--dark); font-size: 3.2rem; font-weight: 800;">${wordList.length}</span>
+  `;
+  
+  const ratio = correctCount / wordList.length;
+  document.getElementById('finalMsg').textContent =
+    ratio === 1  ? '🌟 परफेक्ट! तुम चैंपियन हो!'  :
+    ratio >= 0.8 ? '🎉 बहुत अच्छे! लगभग परफेक्ट!' :
+    ratio >= 0.6 ? '😊 ठीक है! थोड़ा और अभ्यास करो।':
+                   '💪 कोशिश करते रहो, ज़रूर सीखोगे!';
+}
+
+function restartLevel() { 
+  initLevel(currentLevel); 
+}
+
+// ── 100% Offline Custom Confetti Particle System ──
+function launchCelebrateConfetti() {
+  const container = document.getElementById('starsContainer');
+  const colors = ['#FF4081', '#FFEB3B', '#00E676', '#2979FF', '#AA00FF', '#FF9100'];
+  const particleCount = 80;
+
+  for (let i = 0; i < particleCount; i++) {
+    const p = document.createElement('div');
+    p.className = 'offline-confetti';
+    
+    // Random position across top width
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = p.style.width;
+    
+    // Vary shapes slightly
+    if (Math.random() > 0.5) {
+      p.style.borderRadius = '0'; // Rectangular
+    }
+    
+    p.style.animationDelay = (Math.random() * 0.4) + 's';
+    p.style.animationDuration = (1.4 + Math.random() * 1) + 's';
+    
+    container.appendChild(p);
+    
+    // Clean up particles
+    setTimeout(() => {
+      p.remove();
+    }, 2500);
+  }
+}
+
+// Initial start
+window.onload = function() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  }
+  initLevel(0);
+};
+</script>
 </body>
 </html>
